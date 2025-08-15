@@ -1,37 +1,75 @@
-
-
 @extends('layouts.app')
 
 @section('title', 'Add Watermark to PDF')
 
 @section('content')
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
 <div class="px-4 py-0 text-center bg-gray-100">
     <div class="mx-auto max-w-7xl py-5">
+        {{-- banner 5 is hidden by default and only shown after file selection --}}
+        <div id="banner-5-box" class="mt-6 hidden">
+            @php $conversionBanner5 = App\Models\Banner::where('name', 'banner_5')->where('is_active', true)->first(); @endphp
+            @if ($conversionBanner5 && $conversionBanner5->file_path)
+            <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto border-2 border-gray-200">
+                @if ($conversionBanner5->isVideo())
+                <video class="width-height" style="width: 100%; max-height: 300px; object-fit: cover;" controls>
+                    <source src="{{ $conversionBanner5->file_url }}" type="video/{{ $conversionBanner5->file_type }}">
+                </video>
+                @else
+                <a href="{{ $conversionBanner5->url }}" target="_blank">
+                    <img class="width-height" src="{{ $conversionBanner5->file_url }}" alt="Banner 5" style="width: 100%; max-height: 300px; object-fit: cover;">
+                </a>
+                @endif
+            </div>
+            @else
+            <p class="text-red-600">{{ __('messages.no_active_banner_found_5') }}</p>
+            @endif
+        </div>
+
         <div id="initial-content">
-            <h1 class="text-[24px] w-full md:text-[42px] font-bold text-[#33333b] my-2">PDF Watermark</h1>
+            <h1 class="text-[24px] w-full md:text-[42px] font-bold text-[#33333b] my-2">{{ __('messages.pdf_watermark') }}</h1>
             <p class="max-w-5xl mx-auto text-[16px] md:text-[22px] text-gray-700 mb-4">
-                Add text or image watermark to your PDF with custom positioning
+                {{ __('messages.add_text_or_image_watermark') }}
             </p>
 
             <div id="drop-zone" class="rounded-xl p-8 mb-4 transition-all duration-300 cursor-pointer border-2 border-dashed border-gray-300">
                 <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                     <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
-                <p class="text-gray-600 mb-2">Drag the PDF file here or</p>
-                <button class="bg-black text-white rounded-xl p-3 w-[330px] h-[80px] text-[22px] font-bold hover:bg-gray-800 transition-colors" onclick="openFilePicker()">
-                    Select PDF file
+                <p class="text-gray-600 mb-2">{{ __('messages.drag_pdf_here_or') }}</p>
+                <button class="open--btn bg-black text-white rounded-xl p-3 w-[330px] h-[80px] text-[22px] font-bold hover:bg-gray-800 transition-colors" onclick="openFilePicker()">
+                    {{ __('messages.select_pdf_file') }}
                 </button>
-                <p class="text-sm text-gray-500 mt-2">Supports: PDF</p>
+                <p class="text-sm text-gray-500 mt-2">{{ __('messages.supports_pdf') }}</p>
             </div>
         </div>
 
         <div id="file-card" class="hidden mt-6">
+            {{-- banner 7 shows above the file card --}}
+            <div id="banner-7-box" class="mt-6 hidden">
+                @php $conversionBanner7 = App\Models\Banner::where('name', 'banner_7')->where('is_active', true)->first(); @endphp
+                @if ($conversionBanner7 && $conversionBanner7->file_path)
+                <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto border-2 border-gray-200">
+                    @if ($conversionBanner7->isVideo())
+                    <video class="width-height" style="width: 100%; max-height: 300px; object-fit: cover;" controls>
+                        <source src="{{ $conversionBanner7->file_url }}" type="video/{{ $conversionBanner7->file_type }}">
+                    </video>
+                    @else
+                    <a href="{{ $conversionBanner7->url }}" target="_blank">
+                        <img class="width-height" src="{{ $conversionBanner7->file_url }}" alt="Banner 7" style="width: 100%; max-height: 300px; object-fit: cover;">
+                    </a>
+                    @endif
+                </div>
+                @else
+                <p class="text-red-600">{{ __('messages.no_active_banner_found_7') }}</p>
+                @endif
+            </div>
+
             <div class="bg-white rounded-lg shadow-lg p-6 max-w-4xl mx-auto border-2 border-gray-200">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- PDF Preview Section -->
                     <div class="mb-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4 text-center">PDF Preview</h3>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 text-center">{{ __('messages.pdf_preview') }}</h3>
                         <div id="pdf-preview" class="border-2 border-gray-300 rounded-lg bg-gray-50 flex items-center justify-center relative overflow-hidden" style="height: 500px;">
                             <div class="text-center relative w-full h-full">
                                 <svg id="initial-svg" class="w-16 h-16 text-red-600 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
@@ -43,7 +81,6 @@
                         </div>
                     </div>
 
-                    <!-- Watermark Controls Section -->
                     <div class="space-y-4">
                         <div class="text-center mb-4">
                             <h3 id="selected-file-name" class="text-lg font-semibold text-gray-800 break-all mb-1"></h3>
@@ -53,71 +90,67 @@
                             </div>
                         </div>
 
-                        <!-- Watermark Type -->
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Watermark Type</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.watermark_type') }}</label>
                             <div class="flex gap-4">
                                 <label class="flex items-center">
                                     <input type="radio" name="watermarkType" value="text" checked class="mr-2" onchange="toggleWatermarkType()">
-                                    <span>Text</span>
+                                    <span>{{ __('messages.text') }}</span>
                                 </label>
                                 <label class="flex items-center">
                                     <input type="radio" name="watermarkType" value="image" class="mr-2" onchange="toggleWatermarkType()">
-                                    <span>Image</span>
+                                    <span>{{ __('messages.image') }}</span>
                                 </label>
                             </div>
                         </div>
 
-                        <!-- Text Watermark Controls -->
                         <div id="text-controls" class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Watermark Text</label>
-                                <input type="text" id="watermark-text" class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Enter watermark text" value="CONFIDENTIAL" onchange="updatePreview()">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.watermark_text') }}</label>
+                                <input type="text" id="watermark-text" class="w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="{{ __('messages.enter_watermark_text') }}" value="CONFIDENTIAL" onchange="updatePreview()">
                             </div>
 
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Font Size</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.font_size') }}</label>
                                     <input type="range" id="font-size" min="20" max="100" value="50" class="w-full" oninput="updatePreview()">
                                     <span id="font-size-value" class="text-sm text-gray-600">50px</span>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Opacity</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.opacity') }}</label>
                                     <input type="range" id="opacity" min="0.1" max="1" step="0.1" value="0.3" class="w-full" oninput="updatePreview()">
                                     <span id="opacity-value" class="text-sm text-gray-600">30%</span>
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Text Color</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.text_color') }}</label>
                                 <input type="color" id="text-color" value="#ff0000" class="w-full h-10 border border-gray-300 rounded-lg" onchange="updatePreview()">
                             </div>
                         </div>
 
-                        <!-- Image Watermark Controls -->
                         <div id="image-controls" class="hidden space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Watermark Image</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.watermark_image') }}</label>
                                 <input type="file" id="watermark-image" accept="image/*" class="w-full border border-gray-300 rounded-lg px-3 py-2" onchange="handleImageSelect(event)">
                             </div>
 
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Size</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.image_size') }}</label>
                                     <input type="range" id="image-size" min="50" max="300" value="150" class="w-full" oninput="updatePreview()">
                                     <span id="image-size-value" class="text-sm text-gray-600">150px</span>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Opacity</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('messages.opacity') }}</label>
                                     <input type="range" id="image-opacity" min="0.1" max="1" step="0.1" value="0.3" class="w-full" oninput="updatePreview()">
                                     <span id="image-opacity-value" class="text-sm text-gray-600">30%</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Position Controls -->
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Position</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('messages.position') }}</label>
                             <div class="grid grid-cols-3 gap-2">
                                 <button class="p-2 border border-gray-300 rounded hover:bg-gray-100" onclick="setPosition('top-left')" data-position="top-left">↖</button>
                                 <button class="p-2 border border-gray-300 rounded hover:bg-gray-100" onclick="setPosition('top-center')" data-position="top-center">↑</button>
@@ -131,28 +164,47 @@
                             </div>
                         </div>
 
-                        <!-- Action Buttons -->
                         <div class="space-y-3">
                             <button id="preview-btn" class="w-full bg-blue-600 text-white rounded-lg py-3 px-6 font-semibold hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" onclick="previewWatermark()">
-                                Preview Watermark
+                                {{ __('messages.preview_watermark') }}
                             </button>
 
                             <button id="download-btn" class="w-full bg-green-600 text-white rounded-lg py-3 px-6 font-bold hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 hidden" onclick="downloadWatermarkedFile()">
-                                Download PDF with Watermark
+                                {{ __('messages.download_pdf_with_watermark') }}
                             </button>
 
                             <button class="w-full bg-gray-200 text-gray-700 rounded-lg py-2 px-6 font-medium hover:bg-gray-300 transition-colors" onclick="selectAnotherFile()">
-                                Select Another File
+                                {{ __('messages.select_another_file') }}
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {{-- banner 6 shows below the file card --}}
+            <div id="banner-6-box" class="mt-6 hidden">
+                @php $conversionBanner6 = App\Models\Banner::where('name', 'banner_6')->where('is_active', true)->first(); @endphp
+                @if ($conversionBanner6 && $conversionBanner6->file_path)
+                <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto border-2 border-gray-200">
+                    @if ($conversionBanner6->isVideo())
+                    <video class="width-height" style="width: 100%; max-height: 300px; object-fit: cover;" controls>
+                        <source src="{{ $conversionBanner6->file_url }}" type="video/{{ $conversionBanner6->file_type }}">
+                    </video>
+                    @else
+                    <a href="{{ $conversionBanner6->url }}" target="_blank">
+                        <img class="width-height" src="{{ $conversionBanner6->file_url }}" alt="Banner 6" style="width: 100%; max-height: 300px; object-fit: cover;">
+                    </a>
+                    @endif
+                </div>
+                @else
+                <p class="text-red-600">{{ __('messages.no_active_banner_found_6') }}</p>
+                @endif
+            </div>
         </div>
 
         <div id="progress-section" class="hidden mt-6">
             <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto">
-                <h4 class="text-lg font-semibold text-gray-800 mb-4 text-center">Processing Watermark...</h4>
+                <h4 class="text-lg font-semibold text-gray-800 mb-4 text-center">{{ __('messages.processing_watermark') }}</h4>
                 <div class="w-full bg-gray-200 rounded-full h-2">
                     <div id="progress-bar" class="bg-green-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
                 </div>
@@ -160,15 +212,34 @@
             </div>
         </div>
 
+        {{-- banner 4 is hidden on initial load and shown only on file selection --}}
+        <div id="banner-4-box" class="hidden mt-6">
+            @php $conversionBanner4 = App\Models\Banner::where('name', 'banner_4')->where('is_active', true)->first(); @endphp
+            @if ($conversionBanner4 && $conversionBanner4->file_path)
+            <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto border-2 border-gray-200">
+                @if ($conversionBanner4->isVideo())
+                <video class="width-height" style="width: 100%; max-height: 300px; object-fit: cover;" controls>
+                    <source src="{{ $conversionBanner4->file_url }}" type="video/{{ $conversionBanner4->file_type }}">
+                </video>
+                @else
+                <a href="{{ $conversionBanner4->url }}" target="_blank">
+                    <img class="width-height" src="{{ $conversionBanner4->file_url }}" alt="Banner 4" style="width: 100%; max-height: 300px; object-fit: cover;">
+                </a>
+                @endif
+            </div>
+            @else
+            <p class="text-red-600">{{ __('messages.no_active_banner_found_4') }}</p>
+            @endif
+        </div>
+
         <input type="file" id="file-input" accept="application/pdf" style="display: none;" onchange="handleFileSelect(event)">
     </div>
 </div>
 
- 
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
 <script>
-
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
     const downloadBtn = document.getElementById('download-btn');
@@ -182,6 +253,14 @@
     let currentPosition = 'middle-center';
     let watermarkImage = null;
     let hasWatermarkPreview = false;
+
+    // Event listener to hide banners on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('banner-4-box').classList.add('hidden');
+        document.getElementById('banner-5-box').classList.add('hidden');
+        document.getElementById('banner-6-box').classList.add('hidden');
+        document.getElementById('banner-7-box').classList.add('hidden');
+    });
 
     function openFilePicker() {
         document.getElementById('file-input').click();
@@ -210,17 +289,18 @@
             });
         }
     });
-function setPosition(position) {
-currentPosition = position;
 
-// Update button styles
-document.querySelectorAll('[data-position]').forEach(btn => {
-btn.classList.remove('bg-blue-100');
-});
-document.querySelector(`[data-position="${position}"]`).classList.add('bg-blue-100');
+    function setPosition(position) {
+        currentPosition = position;
 
-updatePreview();
-}
+        // Update button styles
+        document.querySelectorAll('[data-position]').forEach(btn => {
+            btn.classList.remove('bg-blue-100');
+        });
+        document.querySelector(`[data-position="${position}"]`).classList.add('bg-blue-100');
+
+        updatePreview();
+    }
 
     async function handleFileSelect(event) {
         const file = event.target.files[0];
@@ -242,6 +322,12 @@ updatePreview();
 
             document.getElementById('initial-content').style.display = 'none';
             document.getElementById('file-card').classList.remove('hidden');
+
+            // Show all banners when file is selected
+            document.getElementById('banner-4-box').classList.remove('hidden');
+            document.getElementById('banner-5-box').classList.remove('hidden');
+            document.getElementById('banner-6-box').classList.remove('hidden');
+            document.getElementById('banner-7-box').classList.remove('hidden');
 
             document.getElementById('selected-file-name').textContent = file.name;
             document.getElementById('file-size').textContent = formatFileSize(file.size);
@@ -363,7 +449,6 @@ updatePreview();
             text-align: center;
             pointer-events: none;
             white-space: nowrap;
-            // transform: rotate(-45deg);
             transform-origin: center center;
         `;
 
@@ -401,24 +486,20 @@ updatePreview();
     function positionWatermark(watermarkElement, canvas) {
         if (!canvas || !watermarkElement) return;
 
-        // الحصول على أبعاد الكانفس الفعلية
         const canvasRect = canvas.getBoundingClientRect();
         const parentRect = canvas.parentElement.getBoundingClientRect();
 
-        // تعيين موضع العلامة المائية نسبة للكانفس
         watermarkElement.style.position = 'absolute';
         watermarkElement.style.left = `${canvasRect.left - parentRect.left}px`;
         watermarkElement.style.top = `${canvasRect.top - parentRect.top}px`;
         watermarkElement.style.width = `${canvasRect.width}px`;
         watermarkElement.style.height = `${canvasRect.height}px`;
 
-        // إعادة تعيين التحويلات
         watermarkElement.style.transform = '';
 
         const child = watermarkElement.firstChild;
         if (!child) return;
 
-        // تحديد موضع العنصر الفرعي داخل العلامة المائية
         child.style.position = 'absolute';
 
         let leftPercent, topPercent;
@@ -473,7 +554,6 @@ updatePreview();
         child.style.left = leftPercent;
         child.style.top = topPercent;
 
-        // إضافة الدوران للنص
         if (child.tagName === 'DIV') {
             child.style.transform += ' rotate(0deg)';
         }
@@ -494,117 +574,292 @@ updatePreview();
         });
     }
 
-async function downloadWatermarkedFile() {
-if (!selectedFile || !hasWatermarkPreview) {
-Swal.fire({
-icon: 'warning',
-title: 'لا يوجد معاينة',
-text: 'يرجى معاينة العلامة المائية أولاً.',
-confirmButtonColor: '#3085d6',
-confirmButtonText: 'حسنًا'
-});
-return;
-}
+    async function downloadWatermarkedFile() {
+        if (!selectedFile || !hasWatermarkPreview) {
+            Swal.fire({
+                icon: 'warning'
+                , title: 'لا يوجد معاينة'
+                , text: 'يرجى معاينة العلامة المائية أولاً.'
+                , confirmButtonColor: '#3085d6'
+                , confirmButtonText: 'حسنًا'
+            });
+            return;
+        }
 
-document.getElementById('file-card').classList.add('hidden');
-document.getElementById('progress-section').classList.remove('hidden');
+        document.getElementById('file-card').classList.add('hidden');
+        document.getElementById('progress-section').classList.remove('hidden');
 
-let progress = 0;
-const interval = setInterval(() => {
-progress += 10;
-if (progress >= 95) {
-clearInterval(interval);
-progress = 95;
-}
-document.getElementById('progress-bar').style.width = progress + '%';
-document.getElementById('progress-text').textContent = progress + '%';
-}, 150);
+        // إخفاء البانرات أثناء المعالجة
+        document.getElementById('banner-4-box').classList.add('hidden');
+        document.getElementById('banner-5-box').classList.add('hidden');
+        document.getElementById('banner-6-box').classList.add('hidden');
+        document.getElementById('banner-7-box').classList.add('hidden');
 
-try {
-const formData = new FormData();
-formData.append('pdfFile', selectedFile);
-formData.append('watermarkType', document.querySelector('input[name="watermarkType"]:checked').value);
-formData.append('position', currentPosition);
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 5;
+            if (progress >= 90) {
+                clearInterval(interval);
+                progress = 90;
+            }
+            document.getElementById('progress-bar').style.width = progress + '%';
+            document.getElementById('progress-text').textContent = progress + '%';
+        }, 100);
 
-if (formData.get('watermarkType') === 'text') {
-formData.append('watermarkText', document.getElementById('watermark-text').value);
-formData.append('fontSize', document.getElementById('font-size').value);
-formData.append('opacity', document.getElementById('opacity').value);
-formData.append('textColor', document.getElementById('text-color').value);
-} else {
-const watermarkImageInput = document.getElementById('watermark-image');
-if (watermarkImageInput.files[0]) {
-formData.append('watermarkImage', watermarkImageInput.files[0]);
-}
-formData.append('imageSize', document.getElementById('image-size').value);
-formData.append('imageOpacity', document.getElementById('image-opacity').value);
-}
+        try {
+            // قراءة الملف الأصلي
+            const pdfBytes = await selectedFile.arrayBuffer();
 
-const response = await fetch('/watermark-pdf', {
-method: 'POST',
-body: formData,
-headers: {
-'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-},
-});
+            // تحميل PDF باستخدام PDF-lib
+            const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+            const pages = pdfDoc.getPages();
 
-if (!response.ok) {
-const errorData = await response.json();
-clearInterval(interval);
-if (response.status === 429) {
-Swal.fire({
-icon: 'error',
-title: 'تم تجاوز الحد اليومي',
-text: errorData.message,
-confirmButtonColor: '#3085d6',
-confirmButtonText: 'حسنًا'
-});
-selectAnotherFile();
-return;
-}
-throw new Error(errorData.message || 'Server processing failed');
-}
+            const watermarkType = document.querySelector('input[name="watermarkType"]:checked').value;
 
-clearInterval(interval);
-document.getElementById('progress-bar').style.width = '100%';
-document.getElementById('progress-text').textContent = '100%';
+            if (watermarkType === 'text') {
+                // إضافة النص كعلامة مائية
+                const text = document.getElementById('watermark-text').value || 'CONFIDENTIAL';
+                const fontSize = parseInt(document.getElementById('font-size').value) || 50;
+                const opacity = parseFloat(document.getElementById('opacity').value) || 0.3;
+                const color = document.getElementById('text-color').value || '#ff0000';
+                const rgb = hexToRgb(color);
 
-const blob = await response.blob();
-const fileName = selectedFile.name.replace(/\.[^/.]+$/, '') + '_watermarked.pdf';
-const url = window.URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = fileName;
-document.body.appendChild(a);
-a.click();
-a.remove();
-window.URL.revokeObjectURL(url);
+                pages.forEach(page => {
+                    const {
+                        width
+                        , height
+                    } = page.getSize();
+                    const {
+                        x
+                        , y
+                    } = getPosition(currentPosition, width, height, fontSize);
 
-Swal.fire({
-icon: 'success',
-title: 'تم التحميل بنجاح',
-text: 'تم إضافة العلامة المائية وتحميل الملف بنجاح! ✅',
-confirmButtonColor: '#3085d6',
-confirmButtonText: 'حسنًا'
-});
+                    page.drawText(text, {
+                        x: x
+                        , y: y
+                        , size: fontSize
+                        , color: PDFLib.rgb(rgb.r / 255, rgb.g / 255, rgb.b / 255)
+                        , opacity: opacity
+                    , });
+                });
+            } else if (watermarkType === 'image' && watermarkImage) {
+                // إضافة الصورة كعلامة مائية
+                const imageSize = parseInt(document.getElementById('image-size').value) || 150;
+                const imageOpacity = parseFloat(document.getElementById('image-opacity').value) || 0.3;
 
-setTimeout(() => {
-selectAnotherFile();
-}, 1000);
-} catch (error) {
-clearInterval(interval);
-console.error('Error during download:', error);
-Swal.fire({
-icon: 'error',
-title: 'خطأ في التحميل',
-text: `فشل تحميل الملف: ${error.message}. حاول مرة أخرى.`,
-confirmButtonColor: '#3085d6',
-confirmButtonText: 'حسنًا'
-});
-document.getElementById('progress-section').classList.add('hidden');
-document.getElementById('file-card').classList.remove('hidden');
-}
-}
+                // تحويل الصورة إلى bytes
+                const imageBytes = await fetch(watermarkImage).then(res => res.arrayBuffer());
+                let image;
+
+                // تحديد نوع الصورة وتضمينها
+                if (watermarkImage.includes('data:image/png')) {
+                    image = await pdfDoc.embedPng(imageBytes);
+                } else {
+                    image = await pdfDoc.embedJpg(imageBytes);
+                }
+
+                pages.forEach(page => {
+                    const {
+                        width
+                        , height
+                    } = page.getSize();
+                    const {
+                        x
+                        , y
+                    } = getImagePosition(currentPosition, width, height, imageSize);
+
+                    page.drawImage(image, {
+                        x: x
+                        , y: y
+                        , width: imageSize
+                        , height: imageSize
+                        , opacity: imageOpacity
+                    , });
+                });
+            }
+
+            // حفظ PDF المحدث
+            const modifiedPdfBytes = await pdfDoc.save();
+
+            clearInterval(interval);
+            document.getElementById('progress-bar').style.width = '100%';
+            document.getElementById('progress-text').textContent = '100%';
+
+            // تحميل الملف
+            const blob = new Blob([modifiedPdfBytes], {
+                type: 'application/pdf'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = selectedFile.name.replace('.pdf', '_watermarked.pdf');
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+
+            // تحديث عداد العمليات على الخادم
+            await updateOperationCount();
+
+            Swal.fire({
+                icon: 'success'
+                , title: 'تم التحميل بنجاح'
+                , text: 'تم إضافة العلامة المائية وتحميل الملف بنجاح! ✅'
+                , confirmButtonColor: '#3085d6'
+                , confirmButtonText: 'حسنًا'
+            });
+
+            setTimeout(() => {
+                selectAnotherFile();
+            }, 2000);
+
+        } catch (error) {
+            clearInterval(interval);
+            console.error('Error during watermark processing:', error);
+
+            Swal.fire({
+                icon: 'error'
+                , title: 'خطأ في المعالجة'
+                , text: 'حدث خطأ أثناء إضافة العلامة المائية: ' + error.message
+                , confirmButtonColor: '#3085d6'
+                , confirmButtonText: 'حسنًا'
+            });
+
+            // إظهار البانرات مرة أخرى
+            document.getElementById('banner-4-box').classList.remove('hidden');
+            document.getElementById('banner-5-box').classList.remove('hidden');
+            document.getElementById('banner-6-box').classList.remove('hidden');
+            document.getElementById('banner-7-box').classList.remove('hidden');
+
+            document.getElementById('progress-section').classList.add('hidden');
+            document.getElementById('file-card').classList.remove('hidden');
+        }
+    }
+
+    // دالة لحساب موضع النص
+    function getPosition(position, width, height, fontSize) {
+        const margin = 50;
+        let x, y;
+
+        switch (position) {
+            case 'top-left':
+                x = margin;
+                y = height - margin - fontSize;
+                break;
+            case 'top-center':
+                x = width / 2;
+                y = height - margin - fontSize;
+                break;
+            case 'top-right':
+                x = width - margin;
+                y = height - margin - fontSize;
+                break;
+            case 'middle-left':
+                x = margin;
+                y = height / 2;
+                break;
+            case 'middle-center':
+                x = width / 2;
+                y = height / 2;
+                break;
+            case 'middle-right':
+                x = width - margin;
+                y = height / 2;
+                break;
+            case 'bottom-left':
+                x = margin;
+                y = margin;
+                break;
+            case 'bottom-center':
+                x = width / 2;
+                y = margin;
+                break;
+            case 'bottom-right':
+                x = width - margin;
+                y = margin;
+                break;
+            default:
+                x = width / 2;
+                y = height / 2;
+        }
+
+        return {
+            x
+            , y
+        };
+    }
+
+    // دالة لحساب موضع الصورة
+    function getImagePosition(position, width, height, imageSize) {
+        const margin = 20;
+        let x, y;
+
+        switch (position) {
+            case 'top-left':
+                x = margin;
+                y = height - imageSize - margin;
+                break;
+            case 'top-center':
+                x = (width - imageSize) / 2;
+                y = height - imageSize - margin;
+                break;
+            case 'top-right':
+                x = width - imageSize - margin;
+                y = height - imageSize - margin;
+                break;
+            case 'middle-left':
+                x = margin;
+                y = (height - imageSize) / 2;
+                break;
+            case 'middle-center':
+                x = (width - imageSize) / 2;
+                y = (height - imageSize) / 2;
+                break;
+            case 'middle-right':
+                x = width - imageSize - margin;
+                y = (height - imageSize) / 2;
+                break;
+            case 'bottom-left':
+                x = margin;
+                y = margin;
+                break;
+            case 'bottom-center':
+                x = (width - imageSize) / 2;
+                y = margin;
+                break;
+            case 'bottom-right':
+                x = width - imageSize - margin;
+                y = margin;
+                break;
+            default:
+                x = (width - imageSize) / 2;
+                y = (height - imageSize) / 2;
+        }
+
+        return {
+            x
+            , y
+        };
+    }
+
+    // دالة لتحديث عداد العمليات على الخادم
+    async function updateOperationCount() {
+        try {
+            const formData = new FormData();
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+            await fetch('/update-operation-count', {
+                method: 'POST'
+                , body: formData
+                , headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            });
+        } catch (error) {
+            console.log('Could not update operation count:', error);
+        }
+    }
+
 
     async function addTextWatermark(page, pdfDoc) {
         const text = document.getElementById('watermark-text').value;
@@ -612,7 +867,6 @@ document.getElementById('file-card').classList.remove('hidden');
         const opacity = parseFloat(document.getElementById('opacity').value);
         const color = document.getElementById('text-color').value;
 
-        // Convert hex to RGB
         const rgb = hexToRgb(color);
 
         const {
@@ -621,7 +875,6 @@ document.getElementById('file-card').classList.remove('hidden');
         } = page.getSize();
         let x, y;
 
-        // Calculate position
         switch (currentPosition) {
             case 'top-left':
                 x = 50;
@@ -677,7 +930,6 @@ document.getElementById('file-card').classList.remove('hidden');
         const size = parseInt(document.getElementById('image-size').value);
         const opacity = parseFloat(document.getElementById('image-opacity').value);
 
-        // Convert base64 to image
         const imageBytes = await fetch(watermarkImage).then(res => res.arrayBuffer());
         const image = await pdfDoc.embedPng(imageBytes);
 
@@ -687,7 +939,6 @@ document.getElementById('file-card').classList.remove('hidden');
         } = page.getSize();
         let x, y;
 
-        // Calculate position
         switch (currentPosition) {
             case 'top-left':
                 x = 20;
@@ -749,6 +1000,13 @@ document.getElementById('file-card').classList.remove('hidden');
         document.getElementById('initial-content').style.display = 'block';
         document.getElementById('file-card').classList.add('hidden');
         document.getElementById('progress-section').classList.add('hidden');
+
+        // Hide all banners when resetting
+        document.getElementById('banner-4-box').classList.add('hidden');
+        document.getElementById('banner-5-box').classList.add('hidden');
+        document.getElementById('banner-6-box').classList.add('hidden');
+        document.getElementById('banner-7-box').classList.add('hidden');
+
         document.getElementById('file-input').value = '';
         selectedFile = null;
         pdfDoc = null;
@@ -759,7 +1017,6 @@ document.getElementById('file-card').classList.remove('hidden');
         pdfCanvas.style.display = 'none';
         watermarkPreview.style.display = 'none';
 
-        // Reset form values
         document.getElementById('watermark-text').value = 'CONFIDENTIAL';
         document.getElementById('font-size').value = 50;
         document.getElementById('opacity').value = 0.3;
@@ -771,7 +1028,6 @@ document.getElementById('file-card').classList.remove('hidden');
         toggleWatermarkType();
         setPosition('middle-center');
 
-        // تحديث القيم المعروضة
         updatePreview();
     }
 
@@ -783,14 +1039,13 @@ document.getElementById('file-card').classList.remove('hidden');
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
-    // تحديث مسار PDF.js worker عند تحميل الصفحة
+    // Set PDF.js worker
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof pdfjsLib !== 'undefined') {
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
         }
     });
 
-    // Set PDF.js worker - تحديث مسار العامل
     if (typeof pdfjsLib !== 'undefined') {
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
     }

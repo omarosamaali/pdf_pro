@@ -11,12 +11,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-    $middleware->alias([
-        'admin' => \App\Http\Middleware\AdminMiddleware::class,
-        'daily_limit' => \App\Http\Middleware\DailyOperationLimit::class,
+        // أضف SetLocale middleware للـ web group
+        $middleware->web(append: [
+            \App\Http\Middleware\SetLocale::class,
+        ]);
 
-    ]);
-})
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'daily_limit' => \App\Http\Middleware\DailyOperationLimit::class,
+        ]);
+    })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();

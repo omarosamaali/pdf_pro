@@ -11,7 +11,6 @@ use App\Http\Controllers\ImagesToPdfController;
 use App\Http\Controllers\PdfToJpgController;
 use App\Http\Controllers\PdfWatermarkController;
 
-// صفحات العرض بدون middleware (GET requests)
 Route::get('/watermark_pdf', function () {
     return view('actions.add_watermark');
 })->name('add_watermark');
@@ -47,11 +46,13 @@ Route::get('/pdf_to_word', function () {
 Route::get('pdf_to_jpg', function () {
     return view('actions.pdf_to_jpg');
 })->name('pdf_to_jpg');
+
 Route::middleware(['daily_limit'])->post('/convert-pdf_to_jpg', [PdfToJpgController::class, 'convert']);
-// العمليات الفعلية مع middleware (POST requests)
+
 Route::middleware(['daily_limit'])->group(function () {
+    Route::get('/download-watermarked/{filename}', [PdfWatermarkController::class, 'downloadWatermarked'])->name('download.watermarked');
     Route::post('/watermark-pdf', [PdfWatermarkController::class, 'addWatermark']);
-    Route::post('/images-to-pdf', [ImagesToPdfController::class, 'convert']);
+    Route::post('/convert-images_to_pdf', [ImagesToPdfController::class, 'convert']);
     Route::post('/compress-pdf', [PdfCompressController::class, 'compress']);
     Route::post('/rotate-pdf', [PdfRotateController::class, 'convert']);
     Route::post('/convert-pdf_to_excel', [PdfToExcelController::class, 'convert']);

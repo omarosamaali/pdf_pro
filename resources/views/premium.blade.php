@@ -3,8 +3,8 @@
 @section('content')
 <body class="bg-gray-100 font-sans leading-normal tracking-normal">
     <div class="container mx-auto p-8">
-        <h1 class="text-4xl font-bold text-center mb-4 text-gray-800">Choose Your Plan</h1>
-        <p class="text-center text-lg text-gray-600 mb-12">Start your journey with us today and choose the plan that suits your needs.</p>
+        <h1 class="text-4xl font-bold text-center mb-4 text-gray-800">{{ __('messages.choose_your_plan') }}</h1>
+        <p class="text-center text-lg text-gray-600 mb-12">{{ __('messages.choose_plan_desc') }}</p>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             @foreach ($subscriptions as $subscription)
             <div class="bg-white rounded-lg shadow-lg p-6 flex flex-col justify-between">
@@ -17,7 +17,7 @@
 
                     <p class="text-4xl font-extrabold text-center mb-6 text-gray-900">
                         {{ number_format($subscription->price, 2) }} <span class="text-base font-medium text-gray-500">
-                            / {{ $subscription->duration_in_days }} Days
+                            / {{ $subscription->duration_in_days }} {{ __('messages.days_duration') }}
                         </span>
                     </p>
                     <ul class="space-y-4 text-gray-700">
@@ -42,7 +42,7 @@
                     </ul>
                 </div>
                 <a href="{{ route('payment', ['id' => $subscription['id']]) }}" class="mt-5 w-full bg-indigo-600 text-white text-center py-3 px-6 rounded-lg hover:bg-indigo-700 transition duration-300 font-semibold">
-                    Subscribe Now
+                    {{ __('messages.subscribe_now_button') }}
                 </a>
             </div>
             @endforeach

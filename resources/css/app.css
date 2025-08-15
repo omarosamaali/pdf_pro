@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.width-height {
+    width: 336px;
+    height: 120px;
+}
+
+.open--btn {
+    max-width: 300px !important;
+    width: 100% !important;
+}

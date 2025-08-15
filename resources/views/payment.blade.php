@@ -61,16 +61,16 @@
 
 </style>
 
-
 <body class="bg-gray-50 min-h-screen font-sans">
     @if(session('success'))
     <script>
         Swal.fire({
             icon: 'success'
-            , title: 'نجاح!'
-            , text: '{{ session('success') }}'
+            , title: '{{ __("messages.success_title") }}'
+            , text: '{{ session('
+            success ') }}'
             , showConfirmButton: false
-            , timer: 3000 // الرسالة هتختفي بعد 3 ثواني
+            , timer: 3000
         });
 
     </script>
@@ -80,17 +80,18 @@
     <script>
         Swal.fire({
             icon: 'error'
-            , title: 'خطأ!'
-            , text: '{{ session('error') }}'
+            , title: '{{ __("messages.error_title") }}'
+            , text: '{{ session('
+            error ') }}'
         , });
 
     </script>
     @endif
+
     <main class="container mx-auto px-6 py-12">
-        <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Choose Your Payment Method</h2>
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">{{ __('messages.choose_payment_method_title') }}</h2>
         <div class="flex flex-col lg:flex-row gap-8 max-w-6xl mx-auto">
             <div class="w-full lg:w-2/3">
-
                 <div class="space-y-6">
                     <div class="payment-option bg-white rounded-2xl shadow-lg p-6" onclick="togglePayment(event, 'paypal')">
                         <div class="flex items-center justify-between">
@@ -100,7 +101,7 @@
                                 </div>
                                 <div>
                                     <h3 class="text-xl font-bold text-gray-800">PayPal</h3>
-                                    <p class="text-gray-600 mt-2">الطريقة الأكثر أمانًا</p>
+                                    <p class="text-gray-600 mt-2">{{ __('messages.most_secure_label') }}</p>
                                 </div>
                             </div>
                             <div class="flex items-center">
@@ -113,16 +114,15 @@
                                 <div class="bg-yellow-50 rounded-lg p-4 mb-6 border border-yellow-200">
                                     <div class="flex items-center justify-center">
                                         <i class="fas fa-shield-alt text-yellow-600 mr-2"></i>
-                                        <span class="text-sm text-yellow-700">حماية المشتري مضمونة</span>
+                                        <span class="text-sm text-yellow-700">{{ __('messages.buyer_protection_guaranteed') }}</span>
                                     </div>
                                 </div>
                                 <form action="{{ route('paypal.pay') }}" method="POST">
                                     @csrf
                                     <button type="submit" class="w-full bg-yellow-500 text-white font-semibold py-4 rounded-xl hover:bg-yellow-600 transition duration-300">
-                                        ادفع باستخدام PayPal
+                                        {{ __('messages.pay_with_paypal_button') }}
                                     </button>
                                 </form>
-
                             </div>
                         </div>
                     </div>
@@ -134,12 +134,12 @@
                                     <i class="fas fa-university text-white text-2xl"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-xl font-bold text-gray-800">التحويل البنكي</h3>
-                                    <p class="text-gray-600 mt-2">تحويل بنكي مباشر</p>
+                                    <h3 class="text-xl font-bold text-gray-800">{{ __('messages.bank_transfer_title') }}</h3>
+                                    <p class="text-gray-600 mt-2">{{ __('messages.direct_bank_transfer') }}</p>
                                 </div>
                             </div>
                             <div class="flex items-center">
-                                <span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full mr-3">رسوم أقل</span>
+                                <span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full mr-3">{{ __('messages.fewer_fees') }}</span>
                                 <i class="fas fa-chevron-down text-gray-400 transition-transform duration-300" id="bank-arrow"></i>
                             </div>
                         </div>
@@ -148,73 +148,70 @@
                             <div class="border-t pt-6">
                                 @if(isset($bankDetail))
                                 <div class="bg-gray-100 rounded-lg p-4 mb-6 border border-gray-200">
-                                    <h4 class="text-lg font-bold text-gray-800 mb-3">تفاصيل الحساب البنكي</h4>
+                                    <h4 class="text-lg font-bold text-gray-800 mb-3">{{ __('messages.bank_details_title') }}</h4>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
                                         <div>
-                                            <span class="font-semibold text-gray-900">اسم البنك:</span>
+                                            <span class="font-semibold text-gray-900">{{ __('messages.bank_name') }}</span>
                                             <span class="block mt-1">{{ $bankDetail->bank_name }}</span>
                                         </div>
                                         <div>
-                                            <span class="font-semibold text-gray-900">اسم صاحب الحساب:</span>
+                                            <span class="font-semibold text-gray-900">{{ __('messages.account_holder_name') }}</span>
                                             <span class="block mt-1">{{ $bankDetail->account_holder_name }}</span>
                                         </div>
                                         <div>
-                                            <span class="font-semibold text-gray-900">رقم الحساب:</span>
+                                            <span class="font-semibold text-gray-900">{{ __('messages.account_number') }}</span>
                                             <span class="block mt-1">{{ $bankDetail->account_number }}</span>
                                         </div>
                                         <div>
-                                            <span class="font-semibold text-gray-900">رقم الايبان (IBAN):</span>
+                                            <span class="font-semibold text-gray-900">{{ __('messages.iban_number') }}</span>
                                             <span class="block mt-1">{{ $bankDetail->iban }}</span>
                                         </div>
                                     </div>
                                 </div>
                                 @endif
 
-                                <p class="text-sm text-gray-600 mb-4">بعد إتمام التحويل البنكي، يرجى ملء النموذج التالي ورفع إيصال الدفع لتأكيد العملية. سيتم مراجعة طلبك وتفعيل اشتراكك في أقرب وقت.</p>
+                                <p class="text-sm text-gray-600 mb-4">{{ __('messages.bank_transfer_note') }}</p>
 
                                 <form action="{{ route('payment.bank_transfer.submit') }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     <input type="hidden" name="subscription_id" value="{{ $subscription->id }}">
-
                                     <div class="mb-4">
-                                        <label for="sender_name" class="block text-gray-700 font-semibold mb-2">اسم صاحب الحساب المحول منه</label>
+                                        <label for="sender_name" class="block text-gray-700 font-semibold mb-2">{{ __('messages.sender_name_label') }}</label>
                                         <input type="text" id="sender_name" name="sender_name" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
                                     </div>
 
                                     <div class="mb-4">
-                                        <label for="amount" class="block text-gray-700 font-semibold mb-2">المبلغ المحول</label>
+                                        <label for="amount" class="block text-gray-700 font-semibold mb-2">{{ __('messages.amount_label') }}</label>
                                         <input type="text" id="amount" name="amount" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
                                     </div>
 
                                     <div class="mb-6">
-                                        <label for="transfer_receipt" class="block text-gray-700 font-semibold mb-2">إيصال التحويل</label>
+                                        <label for="transfer_receipt" class="block text-gray-700 font-semibold mb-2">{{ __('messages.transfer_receipt_label') }}</label>
                                         <input type="file" id="transfer_receipt" name="transfer_receipt" class="w-full text-gray-700" required>
-                                        <p class="mt-2 text-sm text-gray-500">صيغ الملفات المسموح بها: JPG, PNG, PDF</p>
+                                        <p class="mt-2 text-sm text-gray-500">{{ __('messages.allowed_file_types') }}</p>
                                     </div>
 
                                     <button type="submit" class="w-full bg-green-500 text-white font-semibold py-4 rounded-xl hover:bg-green-600 transition duration-300">
-                                        تأكيد وإرسال الإيصال
+                                        {{ __('messages.confirm_and_submit_button') }}
                                     </button>
                                 </form>
-
                             </div>
                         </div>
                     </div>
 
                     <div class="payment-option bg-white rounded-2xl shadow-lg p-6" onclick="togglePayment(event, 'paytabs')">
-
                         <div class="flex items-center justify-between">
                             <div class="flex items-center space-x-4">
                                 <div class="w-16 h-16 paytabs-bg rounded-full flex items-center justify-center">
                                     <i class="fas fa-credit-card text-white text-2xl"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-xl font-bold text-gray-800">PayTabs</h3>
-                                    <p class="text-gray-600">بوابة دفع محلية ودولية</p>
+                                    <h3 class="text-xl font-bold text-gray-800">{{ __('messages.paytabs_title') }}</h3>
+                                    <p class="text-gray-600">{{ __('messages.local_international_gateway') }}</p>
                                 </div>
                             </div>
                             <div class="flex items-center">
-                                <span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full mr-3">الأكثر شيوعًا</span>
+                                <span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full mr-3">{{ __('messages.most_popular_label') }}</span>
                                 <i class="fas fa-chevron-down text-gray-400 transition-transform duration-300" id="paytabs-arrow"></i>
                             </div>
                         </div>
@@ -222,39 +219,39 @@
                             <div class="border-t pt-6">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                                     <div>
-                                        <h4 class="font-semibold text-gray-800 mb-3">طرق الدفع المتاحة:</h4>
+                                        <h4 class="font-semibold text-gray-800 mb-3">{{ __('messages.available_payment_methods') }}</h4>
                                         <div class="space-y-2 text-sm text-gray-600">
                                             <div class="flex items-center">
                                                 <i class="fas fa-check text-green-500 mr-2"></i>
-                                                <span>فيزا وماستركارد</span>
+                                                <span>{{ __('messages.visa_mastercard') }}</span>
                                             </div>
                                             <div class="flex items-center">
                                                 <i class="fas fa-check text-green-500 mr-2"></i>
-                                                <span>مدى، السعودية</span>
+                                                <span>{{ __('messages.mada_saudi_arabia') }}</span>
                                             </div>
                                             <div class="flex items-center">
                                                 <i class="fas fa-check text-green-500 mr-2"></i>
-                                                <span>محافظ إلكترونية محلية</span>
+                                                <span>{{ __('messages.local_wallets') }}</span>
                                             </div>
                                             <div class="flex items-center">
                                                 <i class="fas fa-check text-green-500 mr-2"></i>
-                                                <span>Apple Pay و Google Pay</span>
+                                                <span>{{ __('messages.apple_google_pay') }}</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div>
-                                        <h4 class="font-semibold text-gray-800 mb-3">الميزات:</h4>
+                                        <h4 class="font-semibold text-gray-800 mb-3">{{ __('messages.features_title') }}</h4>
                                         <div class="space-y-1 text-sm text-gray-600">
-                                            <div>• معالجة الدفع الفوري</div>
-                                            <div>• حماية أمنية متقدمة</div>
-                                            <div>• دعم العملات المحلية</div>
-                                            <div>• واجهة مستخدم عربية</div>
+                                            <div>• {{ __('messages.instant_payment') }}</div>
+                                            <div>• {{ __('messages.advanced_security') }}</div>
+                                            <div>• {{ __('messages.local_currency_support') }}</div>
+                                            <div>• {{ __('messages.arabic_ui') }}</div>
                                         </div>
                                     </div>
                                 </div>
                                 <button class="w-full paytabs-bg text-white font-semibold py-4 rounded-xl hover:opacity-90 transition duration-300" onclick="openModal('paytabs')">
                                     <i class="fas fa-lock mr-2"></i>
-                                    ادفع الآن باستخدام PayTabs
+                                    {{ __('messages.pay_with_paytabs_button') }}
                                 </button>
                             </div>
                         </div>
@@ -270,25 +267,25 @@
                             <input type="hidden" name="subscription_id" value="{{ $subscription['id'] ?? '' }}">
                             <input type="hidden" name="payment_method" id="payment-method">
                             <div class="mb-4">
-                                <label for="card-number" class="block text-gray-700 font-semibold mb-2">رقم البطاقة</label>
+                                <label for="card-number" class="block text-gray-700 font-semibold mb-2">{{ __('messages.modal_card_number') }}</label>
                                 <input type="text" id="card-number" class="w-full p-3 border rounded-lg" placeholder="1234 5678 9012 3456" required>
                             </div>
                             <div class="grid grid-cols-2 gap-4 mb-4">
                                 <div>
-                                    <label for="expiry-date" class="block text-gray-700 font-semibold mb-2">تاريخ الانتهاء</label>
+                                    <label for="expiry-date" class="block text-gray-700 font-semibold mb-2">{{ __('messages.modal_expiry_date') }}</label>
                                     <input type="text" id="expiry-date" class="w-full p-3 border rounded-lg" placeholder="MM/YY" required>
                                 </div>
                                 <div>
-                                    <label for="cvv" class="block text-gray-700 font-semibold mb-2">CVV</label>
+                                    <label for="cvv" class="block text-gray-700 font-semibold mb-2">{{ __('messages.modal_cvv') }}</label>
                                     <input type="text" id="cvv" class="w-full p-3 border rounded-lg" placeholder="123" required>
                                 </div>
                             </div>
                             <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition duration-300">
-                                تأكيد الدفع
+                                {{ __('messages.modal_confirm_payment') }}
                             </button>
                         </form>
                         <button class="mt-4 w-full bg-gray-300 text-gray-700 font-semibold py-3 rounded-lg hover:bg-gray-400 transition duration-300" onclick="closeModal()">
-                            إغلاق
+                            {{ __('messages.modal_close') }}
                         </button>
                     </div>
                 </div>
@@ -296,28 +293,27 @@
 
             <div class="w-full lg:w-1/3">
                 <div class="bg-white rounded-2xl shadow-lg p-8 mb-8 glow-effect sticky top-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Order Summary</h2>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">{{ __('messages.order_summary') }}</h2>
                     <div class="border-b pb-4 mb-4">
                         <div class="flex justify-between items-center">
-                            <span class="text-lg">Selected Plan:</span>
+                            <span class="text-lg">{{ __('messages.selected_plan') }}</span>
                             <span class="text-lg font-semibold text-indigo-600">
-                                {{ $subscription?->name_en ?? 'No Plan Selected' }}
+                                {{ $subscription?->name_en ?? __('messages.no_plan_selected') }}
                             </span>
                         </div>
                     </div>
                     <div class="flex justify-between items-center text-xl font-bold text-gray-900">
-                        <span>Total Amount:</span>
+                        <span>{{ __('messages.total_amount') }}</span>
                         <span>
                             {{ $subscription ? number_format($subscription->price, 2) : 'N/A' }}
                         </span>
                     </div>
                     <div class="flex justify-between items-center text-xl font-bold text-gray-900">
-                        <span>Daily Operations:</span>
+                        <span>{{ __('messages.daily_operations') }}</span>
                         <span>
-                            {{ $subscription->daily_operations_limit ?? 'No Limit' }}
+                            {{ $subscription->daily_operations_limit ?? __('messages.no_limit') }}
                         </span>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -327,16 +323,14 @@
         let activePayment = null;
 
         function togglePayment(event, paymentType) {
-            // هنا الكود بيمنع إن الضغطة على أي حاجة داخل payment-details تقفل القائمة
             if (event.target.closest('.payment-details')) {
-                return; // بيتجاهل تنفيذ باقي الكود لو الضغطة كانت جوه تفاصيل الدفع
+                return;
             }
 
             const details = document.getElementById(paymentType + '-details');
             const arrow = document.getElementById(paymentType + '-arrow');
             const option = details.parentElement;
 
-            // ... باقي الكود من هنا زي ما هو ...
             document.querySelectorAll('.payment-details').forEach(detail => {
                 if (detail !== details) {
                     detail.classList.remove('show');
@@ -365,8 +359,6 @@
             }
         }
 
-
-
         document.addEventListener('DOMContentLoaded', function() {
             const cards = document.querySelectorAll('.payment-option');
             cards.forEach((card, index) => {
@@ -381,7 +373,5 @@
         });
 
     </script>
-
-
 </body>
 @endsection

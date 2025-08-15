@@ -9,11 +9,29 @@ use App\Http\Controllers\PremiumController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PayPalController;
 use App\Http\Controllers\BankDetailController;
-use App\Http\Controllers\SettingController; // تأكد من استيراد الكنترولر الجديد
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\BannerController;
+use App\Models\Banner;
+
+Route::get('lang/{locale}', function ($locale) {
+    if (! in_array($locale, ['en', 'ar'])) {
+        abort(400);
+    }
+    session()->put('locale', $locale);
+    return redirect()->back();
+})->name('lang.switch');
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/banners', [BannerController::class, 'index'])->name('banners.index');
+    Route::post('/admin/banners/save', [BannerController::class, 'save'])->name('banners.save');
+    Route::get('/admin/banners/{id}/toggle', [BannerController::class, 'toggleStatus'])->name('banners.toggle');
+    Route::get('/admin/banners/{id}/delete-file', [BannerController::class, 'deleteFile'])->name('banners.deleteFile');
+});
+
+Route::get('/api/banners', [BannerController::class, 'getBanners'])->name('api.banners');
+
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('subscriptions', SubscriptionController::class);
-
-    // المسارات الخاصة بالإعدادات
     Route::get('/admin/settings', [SettingController::class, 'index'])->name('admin.settings.index');
     Route::post('/admin/save-settings', [SettingController::class, 'saveSettings'])->name('dashboard.settings.save');
 });
@@ -28,11 +46,9 @@ Route::get('/premium', [PremiumController::class, 'index'])->name('premium');
 Route::get('/payment/{id?}', [PaymentController::class, 'show'])->name('payment');
 Route::post('/payment/process', [PaymentController::class, 'process'])->name('payment.process');
 
-
-
 Route::get('dashboard', function () {
     return view('admin.dashboard');
-})->middleware(['auth'])->name('dashboard');
+})->middleware(['auth', 'admin'])->name('dashboard');
 
 
 Route::middleware(['auth', 'admin'])->group(function () {
@@ -40,16 +56,19 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::put('/bank-details', [BankDetailController::class, 'update'])->name('payments.bank_details.update');
 });
 Route::resource('users', UserController::class);
-// Route::resource('subscriptions', SubscriptionController::class);
-
 
 Route::get('payment', function () {
     return view('payment');
 })->name('payment');
 
 Route::get('/', function () {
-    return view('welcome');
+    $banners = Banner::where('is_active', 1)
+        ->whereNotIn('name', ['banner_4', 'banner_5', 'banner_6', 'banner_7'])
+        ->get();
+
+    return view('welcome', compact('banners'));
 })->name('/');
+
 
 Route::get('about', function () {
     return view('about');

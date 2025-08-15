@@ -392,6 +392,11 @@
                     بيانات التحويل البنكي
                 </a>
 
+                <a href="{{ route('banners.index') }}" class="menu-link {{ request()->routeIs('banners.index') ? 'active' : '' }}">
+                    <span class="menu-icon">📸</span>
+                    البانرات والإعلانات
+                </a>
+
             </div>
         </nav>
     </aside>

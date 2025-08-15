@@ -3,31 +3,73 @@
 @section('title', 'Rotate PDF')
 
 @section('content')
+{{-- Move the CSRF meta tag inside the head section of your layout or to the top of the content section --}}
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
 <div class="px-4 py-0 text-center bg-gray-100">
     <div class="mx-auto max-w-7xl py-5">
+        {{-- banner 5 is hidden by default and only shown after file selection --}}
+        <div id="banner-5-box" class="mt-6 hidden">
+            @php $conversionBanner5 = App\Models\Banner::where('name', 'banner_5')->where('is_active', true)->first(); @endphp
+            @if ($conversionBanner5 && $conversionBanner5->file_path)
+            <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto border-2 border-gray-200">
+                @if ($conversionBanner5->isVideo())
+                <video style="width: 100%; max-height: 300px; object-fit: cover;" class="width-height" controls>
+                    <source src="{{ $conversionBanner5->file_url }}" type="video/{{ $conversionBanner5->file_type }}">
+                </video>
+                @else
+                <a href="{{ $conversionBanner5->url }}" target="_blank">
+                    <img src="{{ $conversionBanner5->file_url }}" alt="Banner 5" class="width-height" style="width: 100%; max-height: 300px; object-fit: cover;">
+                </a>
+                @endif
+            </div>
+            @else
+            <p class="text-red-600">{{ __('messages.no_active_banner_found_5') }}</p>
+            @endif
+        </div>
+
         <div id="initial-content">
-            <h1 class="text-[24px] w-full md:text-[42px] font-bold text-[#33333b] my-2">PDF Rotation</h1>
+            <h1 class="text-[24px] w-full md:text-[42px] font-bold text-[#33333b] my-2">{{ __('messages.pdf_rotation') }}</h1>
             <p class="max-w-5xl mx-auto text-[16px] md:text-[22px] text-gray-700 mb-4">
-                Rotate your PDF pages left or right with high quality
+                {{ __('messages.rotate_pdf_pages_description') }}
             </p>
 
             <div id="drop-zone" class="rounded-xl p-8 mb-4 transition-all duration-300 cursor-pointer border-2 border-dashed border-gray-300">
                 <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                     <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
-                <p class="text-gray-600 mb-2">Drag the PDF file here or</p>
-                <button class="bg-black text-white rounded-xl p-3 w-[330px] h-[80px] text-[22px] font-bold hover:bg-gray-800 transition-colors" onclick="openFilePicker()">
-                    Select PDF file
+                <p class="text-gray-600 mb-2">{{ __('messages.drag_pdf_file_here') }}</p>
+                <button class="open--btn bg-black text-white rounded-xl p-3 w-[330px] h-[80px] text-[22px] font-bold hover:bg-gray-800 transition-colors" onclick="openFilePicker()">
+                    {{ __('messages.select_pdf_file') }}
                 </button>
-                <p class="text-sm text-gray-500 mt-2">Supports: PDF</p>
+                <p class="text-sm text-gray-500 mt-2">{{ __('messages.supports_pdf') }}</p>
             </div>
         </div>
 
         <div id="file-card" class="hidden mt-6">
+            {{-- banner 7 shows above the file card --}}
+            <div id="banner-7-box" class="mt-6 hidden">
+                @php $conversionBanner7 = App\Models\Banner::where('name', 'banner_7')->where('is_active', true)->first(); @endphp
+                @if ($conversionBanner7 && $conversionBanner7->file_path)
+                <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto border-2 border-gray-200">
+                    @if ($conversionBanner7->isVideo())
+                    <video style="width: 100%; max-height: 300px; object-fit: cover;" class="width-height" controls>
+                        <source src="{{ $conversionBanner7->file_url }}" type="video/{{ $conversionBanner7->file_type }}">
+                    </video>
+                    @else
+                    <a href="{{ $conversionBanner7->url }}" target="_blank">
+                        <img src="{{ $conversionBanner7->file_url }}" alt="Banner 7" class="width-height" style="width: 100%; max-height: 300px; object-fit: cover;">
+                    </a>
+                    @endif
+                </div>
+                @else
+                <p class="text-red-600">{{ __('messages.no_active_banner_found_7') }}</p>
+                @endif
+            </div>
+
             <div class="bg-white rounded-lg shadow-lg p-6 max-w-2xl mx-auto border-2 border-gray-200">
                 <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4 text-center">PDF Preview</h3>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 text-center">{{ __('messages.pdf_preview') }}</h3>
                     <div id="pdf-preview" class="border-2 border-gray-300 rounded-lg bg-gray-50 flex items-center justify-center" style="height: 400px;">
                         <div class="text-center">
                             <svg id="initial-svg" class="w-16 h-16 text-red-600 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
@@ -51,30 +93,50 @@
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.334 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"></path>
                         </svg>
-                        Rotate Left
+                        {{ __('messages.rotate_left') }}
                     </button>
 
                     <button id="rotate-right-btn" class="flex items-center justify-center bg-green-600 text-white rounded-lg py-3 px-6 font-semibold hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50" onclick="rotatePDF('right')">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z"></path>
                         </svg>
-                        Rotate Right
+                        {{ __('messages.rotate_right') }}
                     </button>
                 </div>
 
                 <button id="download-btn" class="w-full bg-yellow-500 text-white rounded-lg py-3 px-6 font-bold hover:bg-yellow-600 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50 mt-4" onclick="uploadAndRotate()">
-                    Download Rotated PDF
+                    {{ __('messages.download_rotated_pdf') }}
                 </button>
 
                 <button class="w-full bg-gray-200 text-gray-700 rounded-lg py-2 px-6 font-medium hover:bg-gray-300 transition-colors mt-4" onclick="selectAnotherFile()">
-                    Select Another File
+                    {{ __('messages.select_another_file') }}
                 </button>
+            </div>
+
+            {{-- banner 6 shows below the file card --}}
+            <div id="banner-6-box" class="mt-6 hidden">
+                @php $conversionBanner6 = App\Models\Banner::where('name', 'banner_6')->where('is_active', true)->first(); @endphp
+                @if ($conversionBanner6 && $conversionBanner6->file_path)
+                <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto border-2 border-gray-200">
+                    @if ($conversionBanner6->isVideo())
+                    <video style="width: 100%; max-height: 300px; object-fit: cover;" class="width-height" controls>
+                        <source src="{{ $conversionBanner6->file_url }}" type="video/{{ $conversionBanner6->file_type }}">
+                    </video>
+                    @else
+                    <a href="{{ $conversionBanner6->url }}" target="_blank">
+                        <img src="{{ $conversionBanner6->file_url }}" alt="Banner 6" class="width-height" style="width: 100%; max-height: 300px; object-fit: cover;">
+                    </a>
+                    @endif
+                </div>
+                @else
+                <p class="text-red-600">{{ __('messages.no_active_banner_found_6') }}</p>
+                @endif
             </div>
         </div>
 
         <div id="progress-section" class="hidden mt-6">
             <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto">
-                <h4 class="text-lg font-semibold text-gray-800 mb-4 text-center">Rotating PDF...</h4>
+                <h4 class="text-lg font-semibold text-gray-800 mb-4 text-center">{{ __('messages.rotating_pdf') }}</h4>
                 <div class="w-full bg-gray-200 rounded-full h-2">
                     <div id="progress-bar" class="bg-green-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
                 </div>
@@ -82,11 +144,32 @@
             </div>
         </div>
 
+        {{-- banner 4 is hidden on initial load and shown only on file selection --}}
+        <div id="banner-4-box" class="hidden mt-6">
+            @php $conversionBanner4 = App\Models\Banner::where('name', 'banner_4')->where('is_active', true)->first(); @endphp
+            @if ($conversionBanner4 && $conversionBanner4->file_path)
+            <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto border-2 border-gray-200">
+                @if ($conversionBanner4->isVideo())
+                <video style="width: 100%; max-height: 300px; object-fit: cover;" class="width-height" controls>
+                    <source src="{{ $conversionBanner4->file_url }}" type="video/{{ $conversionBanner4->file_type }}">
+                </video>
+                @else
+                <a href="{{ $conversionBanner4->url }}" target="_blank">
+                    <img src="{{ $conversionBanner4->file_url }}" alt="Banner 4" class="width-height" style="width: 100%; max-height: 300px; object-fit: cover;">
+                </a>
+                @endif
+            </div>
+            @else
+            <p class="text-red-600">{{ __('messages.no_active_banner_found_4') }}</p>
+            @endif
+        </div>
+
         <input type="file" id="file-input" accept="application/pdf" style="display: none;" onchange="handleFileSelect(event)">
     </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     const dropZone = document.getElementById('drop-zone');
     const fileInput = document.getElementById('file-input');
@@ -99,6 +182,14 @@
     let selectedFile = null;
     let pdfDoc = null;
     let currentRotation = 0;
+
+    // Event listener to hide banners on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('banner-4-box').classList.add('hidden');
+        document.getElementById('banner-5-box').classList.add('hidden');
+        document.getElementById('banner-6-box').classList.add('hidden');
+        document.getElementById('banner-7-box').classList.add('hidden');
+    });
 
     function openFilePicker() {
         document.getElementById('file-input').click();
@@ -148,6 +239,12 @@
 
             document.getElementById('initial-content').style.display = 'none';
             document.getElementById('file-card').classList.remove('hidden');
+
+            // Show all banners when file is selected
+            document.getElementById('banner-4-box').classList.remove('hidden');
+            document.getElementById('banner-5-box').classList.remove('hidden');
+            document.getElementById('banner-6-box').classList.remove('hidden');
+            document.getElementById('banner-7-box').classList.remove('hidden');
 
             document.getElementById('selected-file-name').textContent = file.name;
             document.getElementById('file-size').textContent = formatFileSize(file.size);
@@ -205,6 +302,13 @@
         document.getElementById('initial-content').style.display = 'block';
         document.getElementById('file-card').classList.add('hidden');
         document.getElementById('progress-section').classList.add('hidden');
+
+        // Hide all banners when resetting
+        document.getElementById('banner-4-box').classList.add('hidden');
+        document.getElementById('banner-5-box').classList.add('hidden');
+        document.getElementById('banner-6-box').classList.add('hidden');
+        document.getElementById('banner-7-box').classList.add('hidden');
+
         document.getElementById('file-input').value = '';
         selectedFile = null;
         pdfDoc = null;
@@ -231,7 +335,18 @@
     }
 
     async function uploadAndRotate() {
-        if (!selectedFile || currentRotation === 0) {
+        if (!selectedFile) {
+            Swal.fire({
+                icon: 'warning'
+                , title: 'No File Selected'
+                , text: 'Please select a PDF file before attempting to rotate.'
+                , confirmButtonColor: '#3085d6'
+                , confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        if (currentRotation === 0) {
             Swal.fire({
                 icon: 'warning'
                 , title: 'No Rotation Applied'
@@ -242,8 +357,15 @@
             return;
         }
 
+
         document.getElementById('file-card').classList.add('hidden');
         document.getElementById('progress-section').classList.remove('hidden');
+
+        // Hide all banners during processing
+        document.getElementById('banner-4-box').classList.add('hidden');
+        document.getElementById('banner-5-box').classList.add('hidden');
+        document.getElementById('banner-6-box').classList.add('hidden');
+        document.getElementById('banner-7-box').classList.add('hidden');
 
         const formData = new FormData();
         formData.append('pdfFile', selectedFile);
@@ -259,19 +381,49 @@
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
+                // For all other errors, including 500, show a generic message
+                const errorText = await response.text();
+                console.error("Server Error Response:", errorText);
+
                 if (response.status === 429) {
                     Swal.fire({
                         icon: 'error'
                         , title: 'The daily limit has been exceeded'
-                        , text: errorData.error || 'You have exceeded your daily operation limit.'
+                        , text: 'You have exceeded your daily operation limit. Please try again tomorrow.'
                         , confirmButtonColor: '#3085d6'
                         , confirmButtonText: 'OK'
                     });
-                    selectAnotherFile();
-                    return;
+                } else if (response.status === 422) {
+                    // Try to parse JSON for validation errors
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        Swal.fire({
+                            icon: 'error'
+                            , title: 'Validation Error'
+                            , text: errorData.error || 'Invalid file format or size. Please try again.'
+                            , confirmButtonColor: '#3085d6'
+                            , confirmButtonText: 'OK'
+                        });
+                    } catch (e) {
+                        Swal.fire({
+                            icon: 'error'
+                            , title: 'Rotation Error'
+                            , text: 'An unexpected error occurred on the server. Please try again later.'
+                            , confirmButtonColor: '#3085d6'
+                            , confirmButtonText: 'OK'
+                        });
+                    }
+                } else {
+                    Swal.fire({
+                        icon: 'error'
+                        , title: 'Rotation Error'
+                        , text: 'An error occurred on the server. Please try again later.'
+                        , confirmButtonColor: '#3085d6'
+                        , confirmButtonText: 'OK'
+                    });
                 }
-                throw new Error(errorData.error || 'Server rotation failed');
+                selectAnotherFile();
+                return;
             }
 
             let progress = 0;
@@ -316,10 +468,17 @@
             Swal.fire({
                 icon: 'error'
                 , title: 'Rotation Error'
-                , text: `Failed to rotate the file: ${error.message}. Please try again.`
+                , text: `Failed to rotate the file. Please check your network connection and try again.`
                 , confirmButtonColor: '#3085d6'
                 , confirmButtonText: 'OK'
             });
+
+            // Show banners again on error
+            document.getElementById('banner-4-box').classList.remove('hidden');
+            document.getElementById('banner-5-box').classList.remove('hidden');
+            document.getElementById('banner-6-box').classList.remove('hidden');
+            document.getElementById('banner-7-box').classList.remove('hidden');
+
             setTimeout(() => {
                 selectAnotherFile();
             }, 1000);

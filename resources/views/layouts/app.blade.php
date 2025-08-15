@@ -48,112 +48,161 @@
     </style>
 </head>
 <body class="bg-gray-100">
-    <nav class="bg-white shadow-lg fixed top-0 w-full z-50">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-3">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <a href="{{ route('/') }}" class="text-2xl font-bold text-black">PDF Pro</a>
+<nav class="bg-white shadow-lg fixed top-0 w-full z-50">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center py-3">
+            <div class="flex items-center">
+                <a href="{{ route('/') }}" class="text-2xl font-bold text-black">{{ __('messages.pdf_pro') }}</a>
+            </div>
+
+            <div class="lg:hidden">
+                <button id="menu-toggle" class="text-gray-700 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="menu" class="hidden lg:flex md:items-center md:space-x-4 md:space-x-reverse">
+                <a href="{{ route('merge_pdf') }}" class="block md:inline-block px-2 py-2 md:py-0 text-md font-semibold text-gray-700 hover:text-black">
+                    {{ __('messages.merge_pdf') }}
+                </a>
+                <a href="{{ route('pdf_to_word') }}" class="block md:inline-block py-2 md:py-0 text-md font-semibold text-gray-700 hover:text-black">
+                    {{ __('messages.convert_word') }}
+                </a>
+                <a href="{{ route('pdf_to_powerpoint') }}" class="block md:inline-block py-2 md:py-0 text-md font-semibold text-gray-700 hover:text-black">
+                    {{ __('messages.convert_powerpoint') }}
+                </a>
+                <a href="{{ route('pdf_to_excel') }}" class="block md:inline-block py-2 md:py-0 text-md font-semibold text-gray-700 hover:text-black">
+                    {{ __('messages.convert_excel') }}
+                </a>
+                <a href="{{ route('rotate_pdf') }}" class="block md:inline-block py-2 md:py-0 text-md font-semibold text-gray-700 hover:text-black">
+                    {{ __('messages.rotate_pdf') }}
+                </a>
+            </div>
+
+            <div id="auth-menu" class="hidden lg:flex md:items-center space-x-4 rtl:space-x-reverse">
+                <a href="{{ route('lang.switch', ['locale' => App::isLocale('ar') ? 'en' : 'ar']) }}" class="text-md font-bold text-gray-700 hover:text-black">
+                    {{ App::isLocale('ar') ? __('messages.english') : __('messages.arabic') }}
+                </a>
+
+                @auth
+                <div class="hidden sm:flex sm:items-center sm:ms-6">
+                    <x-dropdown align="right" width="48">
+                        <x-slot name="trigger">
+                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                                <div>{{ Auth::user()->name }}</div>
+                                <div class="ms-1">
+                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </button>
+                        </x-slot>
+
+                        <x-slot name="content">
+                            <x-dropdown-link :href="route('profile.edit')">
+                                {{ __('messages.profile') }}
+                            </x-dropdown-link>
+
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <x-dropdown-link :href="route('logout')" onclick="event.preventDefault();
+                                            this.closest('form').submit();">
+                                    {{ __('messages.logout') }}
+                                </x-dropdown-link>
+                            </form>
+                        </x-slot>
+                    </x-dropdown>
                 </div>
 
-                <!-- Hamburger Menu for Mobile -->
-                <div class="lg:hidden">
-                    <button id="menu-toggle" class="text-gray-700 focus:outline-none">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                <div class="-me-2 flex items-center sm:hidden">
+                    <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out">
+                        <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
+                            <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
-
-                <!-- Menu Items -->
-                <div id="menu" class="hidden lg:flex md:items-center md:space-x-4 md:space-x-reverse">
-                    <a href="{{ route('merge_pdf') }}" class="block md:inline-block px-2 py-2 md:py-0 text-md font-semibold text-gray-700 hover:text-black">Merge PDF</a>
-                    <a href="{{ route('pdf_to_word') }}" class="block md:inline-block py-2 md:py-0 text-md font-semibold text-gray-700 hover:text-black">Convert Word</a>
-                    <a href="{{ route('pdf_to_powerpoint') }}" class="block md:inline-block py-2 md:py-0 text-md font-semibold text-gray-700 hover:text-black">Convert Powerpoint</a>
-                    <a href="{{ route('pdf_to_excel') }}" class="block md:inline-block py-2 md:py-0 text-md font-semibold text-gray-700 hover:text-black">Convert Excel</a>
-                    <a href="{{ route('rotate_pdf') }}" class="block md:inline-block py-2 md:py-0 text-md font-semibold text-gray-700 hover:text-black">Rotate PDF</a>
-                </div>
-
-                <!-- Auth Links -->
-                <div id="auth-menu" class="hidden lg:flex md:items-center">
-                    @auth
-                    <!-- Settings Dropdown -->
-                    <div class="hidden sm:flex sm:items-center sm:ms-6">
-                        <x-dropdown align="right" width="48">
-                            <x-slot name="trigger">
-                                <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500  bg-white  hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                                    <div>{{ Auth::user()->name }}</div>
-
-                                    <div class="ms-1">
-                                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                </button>
-                            </x-slot>
-
-                            <x-slot name="content">
-                                <x-dropdown-link :href="route('profile.edit')">
-                                    {{ __('Profile') }}
-                                </x-dropdown-link>
-
-                                <!-- Authentication -->
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-
-                                    <x-dropdown-link :href="route('logout')" onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                        {{ __('Log Out') }}
-                                    </x-dropdown-link>
-                                </form>
-                            </x-slot>
-                        </x-dropdown>
-                    </div>
-
-                    <!-- Hamburger -->
-                    <div class="-me-2 flex items-center sm:hidden">
-                        <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-900 focus:text-gray-500 dark:focus:text-gray-400 transition duration-150 ease-in-out">
-                            <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                                <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                                <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                    @else
-                    <div class="md:space-x-4 md:space-x-reverse">
-                        <a href="{{ route('login') }}" class="block md:inline-block py-2 md:py-0 text-gray-900 hover:text-black font-bold px-2">Login</a>
-                        <a href="{{ route('register') }}" class="block md:inline-block py-1 bg-black text-white px-3 rounded-lg hover:bg-gray-700 font-bold">Sign up</a>
-                    </div>
-                    @endauth
-                </div>
-
-            </div>
-
-            <!-- Mobile Menu -->
-            <div id="mobile-menu" class="lg:hidden hidden">
-                <div class="flex flex-col space-y-2 py-4">
-                    <a href="{{ route('merge_pdf') }}" class="py-2 text-md font-semibold text-gray-700 hover:text-black">Merge PDF</a>
-                    <a href="{{ route('pdf_to_word') }}" class="py-2 text-md font-semibold text-gray-700 hover:text-black">Convert Word</a>
-                    <a href="{{ route('pdf_to_powerpoint') }}" class="py-2 text-md font-semibold text-gray-700 hover:text-black">Convert Powerpoint</a>
-                    <a href="{{ route('pdf_to_excel') }}" class="py-2 text-md font-semibold text-gray-700 hover:text-black">Convert Excel</a>
-                    <a href="{{ route('rotate_pdf') }}" class="py-2 text-md font-semibold text-gray-700 hover:text-black">Rotate PDF</a>
-                    @auth
-                    <a href="{{ route('profile.edit') }}">
-                        {{ __('Profile') }}
+                @else
+                <div class="md:space-x-4 md:space-x-reverse">
+                    <a href="{{ route('login') }}" class="block md:inline-block py-2 md:py-0 text-gray-900 hover:text-black font-bold px-2">
+                        {{ __('messages.login') }}
                     </a>
 
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="py-2 text-gray-700 hover:text-black w-full text-left">Log out</button>
-                    </form>
-                    @else
-                    <a href="{{ route('login') }}" class="py-2 text-gray-900 hover:text-black font-bold ">Login</a>
-                    <a href="{{ route('register') }}" class="py-3 bg-black text-white px-3 rounded-lg hover:bg-gray-700 font-bold">Sign up</a>
-                    @endauth
+                    <a href="{{ route('register') }}" class="block md:inline-block py-1 bg-black text-white px-3 rounded-lg hover:bg-gray-700 font-bold">
+                        {{ __('messages.sign_up') }}
+                    </a>
                 </div>
+                @endauth
+            </div>
+
+        </div>
+
+        <div id="mobile-menu" class="lg:hidden hidden">
+            <div class="flex flex-col space-y-2 py-4">
+                <!-- Language Switcher for Mobile -->
+                <div class="language-switcher mb-2">
+                    <a href="{{ route('lang.switch', 'en') }}" class="px-3 py-1 mr-2 {{ app()->getLocale() == 'en' ? 'bg-blue-500 text-white' : 'text-blue-500' }} rounded">
+                        {{ __('messages.english') }}
+                    </a>
+                    <a href="{{ route('lang.switch', 'ar') }}" class="px-3 py-1 {{ app()->getLocale() == 'ar' ? 'bg-blue-500 text-white' : 'text-blue-500' }} rounded">
+                        {{ __('messages.arabic') }}
+                    </a>
+                </div>
+
+                <a href="{{ route('merge_pdf') }}" class="py-2 text-md font-semibold text-gray-700 hover:text-black">
+                    {{ __('messages.merge_pdf') }}
+                </a>
+                <a href="{{ route('pdf_to_word') }}" class="py-2 text-md font-semibold text-gray-700 hover:text-black">
+                    {{ __('messages.convert_word') }}
+                </a>
+                <a href="{{ route('pdf_to_powerpoint') }}" class="py-2 text-md font-semibold text-gray-700 hover:text-black">
+                    {{ __('messages.convert_powerpoint') }}
+                </a>
+                <a href="{{ route('pdf_to_excel') }}" class="py-2 text-md font-semibold text-gray-700 hover:text-black">
+                    {{ __('messages.convert_excel') }}
+                </a>
+                <a href="{{ route('rotate_pdf') }}" class="py-2 text-md font-semibold text-gray-700 hover:text-black">
+                    {{ __('messages.rotate_pdf') }}
+                </a>
+
+                @auth
+                <a href="{{ route('profile.edit') }}" class="py-2 text-md font-semibold text-gray-700 hover:text-black">
+                    {{ __('messages.profile') }}
+                </a>
+
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="py-2 text-gray-700 hover:text-black w-full text-left">
+                        {{ __('messages.logout') }}
+                    </button>
+                </form>
+                @else
+                <a href="{{ route('login') }}" class="block py-2 text-gray-900 hover:text-black font-bold">
+                    {{ __('messages.login') }}
+                </a>
+
+                <a href="{{ route('register') }}" class="py-3 bg-black text-white px-3 rounded-lg hover:bg-gray-700 font-bold">
+                    {{ __('messages.sign_up') }}
+                </a>
+                @endauth
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
+
+
+<script>
+    // Existing JavaScript for hamburger menu
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    menuToggle.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+
+</script>
 
     <script>
         document.getElementById('menu-toggle').addEventListener('click', () => {
@@ -174,20 +223,30 @@
         @yield('content')
     </main>
 
-    <footer class="bg-white rounded-lg shadow-sm m-4 border">
-        <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
-            <span class="text-sm text-gray-500 sm:text-center ">© 2025 <a target="_blank" href="https://omarosamaali.github.io/Portfolio/" class="hover:underline">Omar</a>. All Rights Reserved.
-            </span>
-            <ul class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 sm:mt-0">
-                <li>
-                    <a href="{{ route('about') }}" class="hover:underline me-4 md:me-6">About</a>
-                </li>
-                <li>
-                    <a href="{{ route('privacy-policy') }}" class="hover:underline me-4 md:me-6">Privacy Policy</a>
-                </li>
-            </ul>
-        </div>
-    </footer>
+<footer class="bg-white rounded-lg shadow-sm m-4 border">
+    <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
+        <span class="text-sm text-gray-500 sm:text-center">
+            © 2025
+            <a target="_blank" href="https://omarosamaali.github.io/Portfolio/" class="hover:underline">
+                Omar
+            </a>.
+            {{ __('messages.all_rights_reserved') }}
+        </span>
+        <ul class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 sm:mt-0">
+            <li>
+                <a href="{{ route('about') }}" class="hover:underline me-4 md:me-6">
+                    {{ __('messages.about') }}
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('privacy-policy') }}" class="hover:underline me-4 md:me-6">
+                    {{ __('messages.privacy_policy') }}
+                </a>
+            </li>
+        </ul>
+    </div>
+</footer>
+
 
 </body>
 </html>

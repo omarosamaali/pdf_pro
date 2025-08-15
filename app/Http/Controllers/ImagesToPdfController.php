@@ -13,11 +13,11 @@ class ImagesToPdfController extends Controller
     public function convert(Request $request)
     {
         // Validate uploaded files
-        if (!$request->hasFile('imageFiles')) {
+        if (!$request->hasFile('images')) {
             return response()->json(['error' => 'No files uploaded'], 400);
         }
 
-        $imageFiles = $request->file('imageFiles');
+        $imageFiles = $request->file('images'); // Use the correct key here as well
 
         try {
             // Ensure the temporary directory for PDFs exists

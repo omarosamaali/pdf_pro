@@ -172,29 +172,93 @@
 
                                 <p class="text-sm text-gray-600 mb-4">{{ __('messages.bank_transfer_note') }}</p>
 
-                                <form action="{{ route('payment.bank_transfer.submit') }}" method="POST" enctype="multipart/form-data">
+                                {{-- Display success/error messages --}}
+                                @if(session('success'))
+                                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                                    {{ session('success') }}
+                                </div>
+                                @endif
+
+                                @if(session('error'))
+                                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                                    {{ session('error') }}
+                                </div>
+                                @endif
+
+                                {{-- Display validation errors --}}
+                                @if($errors->any())
+                                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                                    <ul class="list-disc list-inside">
+                                        @foreach($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                                @endif
+
+                                {{-- Check if user already has a pending transfer --}}
+                                @if(isset($existingTransfer) && $existingTransfer)
+                                <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+                                    <p>لديك طلب تحويل مصرفي معلق بالفعل لهذا الاشتراك. حالة الطلب: {{ $existingTransfer->status }}</p>
+                                    <p>تاريخ الإرسال: {{ $existingTransfer->created_at->format('Y-m-d H:i') }}</p>
+                                </div>
+                                @endif
+
+                                <form action="{{ route('payment.bank_transfer.submit') }}" method="POST" enctype="multipart/form-data" id="bankTransferForm">
                                     @csrf
                                     <input type="hidden" name="subscription_id" value="{{ $subscription->id }}">
-                                    <div class="mb-4">
-                                        <label for="sender_name" class="block text-gray-700 font-semibold mb-2">{{ __('messages.sender_name_label') }}</label>
-                                        <input type="text" id="sender_name" name="sender_name" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+
+                                    {{-- Debug info (remove in production) --}}
+                                    <div class="mb-4 p-3 bg-gray-100 rounded text-sm">
+                                        <strong>Debug Info:</strong><br>
+                                        Subscription ID: {{ $subscription->id }}<br>
+                                        User ID: {{ auth()->id() }}<br>
+                                        Subscription Name: {{ $subscription->name ?? 'N/A' }}
                                     </div>
 
                                     <div class="mb-4">
-                                        <label for="amount" class="block text-gray-700 font-semibold mb-2">{{ __('messages.amount_label') }}</label>
-                                        <input type="text" id="amount" name="amount" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                                        <label for="sender_name" class="block text-gray-700 font-semibold mb-2">
+                                            {{ __('messages.sender_name_label') }}
+                                        </label>
+                                        <input type="text" id="sender_name" name="sender_name" value="{{ old('sender_name') }}" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required placeholder="أدخل اسم المرسل">
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label for="amount" class="block text-gray-700 font-semibold mb-2">
+                                            {{ __('messages.amount_label') }}
+                                        </label>
+                                        <input type="number" step="0.01" id="amount" name="amount" value="{{ old('amount') ?? $subscription->price }}" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required placeholder="أدخل المبلغ">
                                     </div>
 
                                     <div class="mb-6">
-                                        <label for="transfer_receipt" class="block text-gray-700 font-semibold mb-2">{{ __('messages.transfer_receipt_label') }}</label>
-                                        <input type="file" id="transfer_receipt" name="transfer_receipt" class="w-full text-gray-700" required>
-                                        <p class="mt-2 text-sm text-gray-500">{{ __('messages.allowed_file_types') }}</p>
+                                        <label for="transfer_receipt" class="block text-gray-700 font-semibold mb-2">
+                                            {{ __('messages.transfer_receipt_label') }}
+                                        </label>
+                                        <input type="file" id="transfer_receipt" name="transfer_receipt" class="w-full text-gray-700 border border-gray-300 rounded-lg p-2" required accept=".jpeg,.jpg,.png,.pdf">
+                                        <p class="mt-2 text-sm text-gray-500">
+                                            {{ __('messages.allowed_file_types') }}
+                                        </p>
                                     </div>
 
-                                    <button type="submit" class="w-full bg-green-500 text-white font-semibold py-4 rounded-xl hover:bg-green-600 transition duration-300">
+                                    <button type="submit" class="w-full bg-green-500 text-white font-semibold py-4 rounded-xl hover:bg-green-600 transition duration-300 disabled:opacity-50" id="submitBtn">
                                         {{ __('messages.confirm_and_submit_button') }}
                                     </button>
                                 </form>
+
+                                <script>
+                                    // Add form submission handling
+                                    document.getElementById('bankTransferForm').addEventListener('submit', function(e) {
+                                        const submitBtn = document.getElementById('submitBtn');
+                                        submitBtn.disabled = true;
+                                        submitBtn.innerHTML = 'جاري الإرسال...';
+                                        // Re-enable button after 5 seconds in case of error
+                                        setTimeout(() => {
+                                            submitBtn.disabled = false;
+                                            submitBtn.innerHTML = '{{ __("messages.confirm_and_submit_button") }}';
+                                        }, 5000);
+                                    });
+
+                                </script>
                             </div>
                         </div>
                     </div>
@@ -249,10 +313,19 @@
                                         </div>
                                     </div>
                                 </div>
-                                <button class="w-full paytabs-bg text-white font-semibold py-4 rounded-xl hover:opacity-90 transition duration-300" onclick="openModal('paytabs')">
+                                <button class="w-full paytabs-bg text-white font-semibold py-4 rounded-xl hover:opacity-90 transition duration-300" 
+                                {{-- onclick="openModal('paytabs')" --}}
+                                onclick="openAlert()"
+                                >
+
                                     <i class="fas fa-lock mr-2"></i>
                                     {{ __('messages.pay_with_paytabs_button') }}
                                 </button>
+                                <script>
+                                    function openAlert(){
+                                        alert("coming soon");
+                                    }
+                                </script>
                             </div>
                         </div>
                     </div>
@@ -320,6 +393,35 @@
     </main>
 
     <script>
+        function openModal(paymentMethod) {
+            // إظهار المودال
+            document.getElementById('payment-modal').classList.remove('hidden');
+            // تخزين نوع وسيلة الدفع
+            document.getElementById('payment-method').value = paymentMethod;
+
+            // تحديث العنوان والوصف حسب الميثود
+            const title = document.getElementById('modal-title');
+            const desc = document.getElementById('modal-description');
+
+            if (paymentMethod === 'paytabs') {
+                title.innerText = "Pay with PayTabs";
+                desc.innerText = "Please enter your card details securely.";
+            } else if (paymentMethod === 'paypal') {
+                title.innerText = "Pay with PayPal";
+                desc.innerText = "Redirecting you to PayPal for secure checkout.";
+            } else if (paymentMethod === 'bank') {
+                title.innerText = "Bank Transfer";
+                desc.innerText = "Please provide your transfer details.";
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+
+    </script>
+
+    <script>
         let activePayment = null;
 
         function togglePayment(event, paymentType) {
@@ -373,5 +475,6 @@
         });
 
     </script>
+
 </body>
 @endsection

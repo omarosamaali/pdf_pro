@@ -20,26 +20,38 @@
                             / {{ $subscription->duration_in_days }} {{ __('messages.days_duration') }}
                         </span>
                     </p>
-                    <ul class="space-y-4 text-gray-700">
-                        @php
-                        // Get the features array directly from the model, thanks to Model Casting
-                        $features = (app()->getLocale() == 'ar' && isset($subscription->features_ar))
-                        ? $subscription->features_ar
-                        : ($subscription->features_en ?? []);
-                        @endphp
+                 <ul class="space-y-4 text-gray-700">
+                     @php
+                     // Simple solution: decode the JSON directly
+                     $locale = app()->getLocale();
+                     $featuresColumn = $locale == 'ar' ? 'features_ar' : 'features_en';
+                     $featuresJson = $subscription->$featuresColumn;
 
-                        {{-- The variable $features is already an array, so no need for json_decode --}}
-                        @if(is_array($features))
-                        @foreach ($features as $feature)
-                        <li class="flex items-center">
-                            <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            <span>{{ $feature }}</span>
-                        </li>
-                        @endforeach
-                        @endif
-                    </ul>
+                     // If it's already decoded by accessor, use it as is
+                     if (is_array($featuresJson)) {
+                     $features = $featuresJson;
+                     } else {
+                     // If it's still JSON string, decode it
+                     $features = json_decode($featuresJson ?? '[]', true) ?: [];
+                     }
+                     @endphp
+
+                     @forelse($features as $feature)
+                     @if(!empty(trim($feature)))
+                     <li class="flex items-center">
+                         <svg class="h-6 w-6 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                         </svg>
+                         <span>{{ $feature }}</span>
+                     </li>
+                     @endif
+                     @empty
+                     <li class="flex items-center text-gray-500">
+                         <span>لا توجد مميزات محددة لهذه الباقة</span>
+                     </li>
+                     @endforelse
+                 </ul>
+
                 </div>
                 <a href="{{ route('payment', ['id' => $subscription['id']]) }}" class="mt-5 w-full bg-indigo-600 text-white text-center py-3 px-6 rounded-lg hover:bg-indigo-700 transition duration-300 font-semibold">
                     {{ __('messages.subscribe_now_button') }}

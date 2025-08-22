@@ -26,8 +26,7 @@
             <th style="padding: 1rem; border-bottom: 1px solid #ddd;">الاسم</th>
             <th style="padding: 1rem; border-bottom: 1px solid #ddd;">البريد الإلكتروني</th>
             <th style="padding: 1rem; border-bottom: 1px solid #ddd;">الدور</th>
-            {{-- <th style="padding: 1rem; border-bottom: 1px solid #ddd;">العمليات اليومية</th> --}}
-            {{-- <th style="padding: 1rem; border-bottom: 1px solid #ddd;">الاشتراك</th> --}}
+            <th style="padding: 1rem; border-bottom: 1px solid #ddd;">نوعية العضوية</th>
             <th style="padding: 1rem; border-bottom: 1px solid #ddd; text-align: center;">الإجراءات</th>
         </tr>
     </thead>
@@ -37,34 +36,28 @@
             <td style="padding: 1rem; border-bottom: 1px solid #eee;">{{ $user->name }}</td>
             <td style="padding: 1rem; border-bottom: 1px solid #eee;">{{ $user->email }}</td>
             <td style="padding: 1rem; border-bottom: 1px solid #eee;">{{ $user->role }}</td>
-            {{-- <td style="padding: 1rem; border-bottom: 1px solid #eee;">{{ $user->daily_operations }}</td> --}}
-            {{-- <td style="padding: 1rem; border-bottom: 1px solid #eee;">
-                @if($user->subscription_id)
+            <td style="padding: 1rem; border-bottom: 1px solid #eee;">
+                @if($user->subscription)
                 {{ $user->subscription->name }}
-            @else
-            لا يوجد
-            @endif
-            </td> --}}
+                @else
+                لا يوجد اشتراك
+                @endif
+            </td>
             <td style="padding: 1rem; border-bottom: 1px solid #eee; text-align: center;">
                 <a href="{{ route('users.edit', $user->id) }}" style="background-color: #3498db; color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; text-decoration: none;">تعديل</a>
-
                 <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;">
                     @csrf
                     @method('DELETE')
                     <button type="submit" style="background-color: #e74c3c; color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer;" onclick="return confirm('هل أنت متأكد من حذف هذا المستخدم؟')">حذف</button>
                 </form>
             </td>
-
         </tr>
         @endforeach
     </tbody>
 </table>
 
-
 <script>
-    // Add mobile menu toggle functionality
     document.addEventListener('DOMContentLoaded', function() {
-        // Add mobile responsiveness
         function handleResize() {
             if (window.innerWidth <= 768) {
                 document.body.classList.add('mobile');
@@ -72,15 +65,10 @@
                 document.body.classList.remove('mobile');
             }
         }
-
         window.addEventListener('resize', handleResize);
         handleResize();
-
-        // Add smooth scrolling for better UX
         document.documentElement.style.scrollBehavior = 'smooth';
     });
 
 </script>
-
-
 @endsection

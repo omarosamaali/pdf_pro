@@ -17,4 +17,18 @@ class BankTransfer extends Model
         'receipt_path',
         'status',
     ];
+
+    // العلاقات
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function subscription()
+    {
+        return $this->belongsTo(Subscription::class);
+    }
+
+    // احذف Events للتجربة أولاً - قد تكون تتعارض مع Controller
+    // سنتعامل مع الإشعارات في Controller فقط
 }

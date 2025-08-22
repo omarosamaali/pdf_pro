@@ -44,10 +44,30 @@
             <input type="number" step="0.01" id="price" name="price" value="{{ old('price', $subscription->price ?? '') }}" class="form-control" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;" required>
         </div>
 
-        <div style="margin-bottom: 1.5rem;">
-            <label for="daily_operations_limit" style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: #333;">عدد العمليات اليومية</label>
-            <input type="number" id="daily_operations_limit" value="{{ old('daily_operations_limit', $subscription->daily_operations_limit ?? '') }}" name="daily_operations_limit" class="form-control" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;">
+<div style="margin-bottom: 1.5rem;" >
+    <label for="daily_operations_limit" style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: #333;">عدد العمليات اليومية</label>
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <input type="number" id="daily_operations_limit" value="{{ old('daily_operations_limit', $subscription->daily_operations_limit ?? '') }}" name="daily_operations_limit" class="form-control" style="width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box;" min="0" {{ old('unlimited_operations', $subscription->unlimited_operations ?? false) ? 'disabled' : '' }}>
+        <div style="display: flex; align-items: center;">
+            <input type="checkbox" id="unlimited_operations" name="unlimited_operations" value="1" 
+            {{ old('unlimited_operations', $subscription->unlimited_operations ?? false) ? 'checked' : '' }} style="margin-left: 0.5rem;">
+            <label for="unlimited_operations" style="width: 69px; color: #333;">غير محدود</label>
         </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('unlimited_operations').addEventListener('change', function() {
+        const input = document.getElementById('daily_operations_limit');
+        if (this.checked) {
+            input.disabled = true;
+            input.value = '';
+        } else {
+            input.disabled = false;
+        }
+    });
+
+</script>
 
         <div style="margin-bottom: 1.5rem;">
             <label for="duration_in_days" style="display: block; font-weight: bold; margin-bottom: 0.5rem; color: #333;">مدة الاشتراك بالأيام</label>

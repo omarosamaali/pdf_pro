@@ -9,7 +9,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-
     <style>
         * {
             margin: 0;
@@ -320,7 +319,8 @@
     <header class="header">
         <div class="logo">
             <div class="logo-icon">PDF</div>
-            <h1>PDF Pro Admin</h1>
+            <h1>{{ $adminName }}</h1>
+
         </div>
         <div class="header-actions">
             <div class="hidden sm:flex sm:items-center sm:ms-6">
@@ -377,6 +377,11 @@
                     لوحة التحكم
                 </a>
 
+                <a href="{{ route('dashboard.site_settings.index') }}" class="menu-link {{ request()->routeIs('admin.site_settings.index') ? 'active' : '' }}">
+                    <span class="menu-icon">⚙</span>
+                    إعدادات الموقع
+                </a>
+
                 <a href="{{ route('users.index') }}" class="menu-link {{ request()->routeIs('users.index') ? 'active' : '' }}">
                     <span class="menu-icon">👥</span>
                     المستخدمين
@@ -387,14 +392,35 @@
                     العضوية والاشتراكات
                 </a>
 
-                <a href="{{ route('payments.bank_details') }}" class="menu-link {{ request()->routeIs('payments.index') ? 'active' : '' }}">
+                <a href="{{ route('bank-transfers.index') }}" class="menu-link {{ request()->routeIs('bank-transfers.index') ? 'active' : '' }}">
+                    <span class="menu-icon">🏦</span>
+                    طلبات التحويل البنكي
+                </a>
+
+                <a href="{{ route('payments.bank_details') }}" class="menu-link {{ request()->routeIs('payments.bank_details') ? 'active' : '' }}">
                     <span class="menu-icon">💳</span>
                     بيانات التحويل البنكي
+                </a>
+
+                <a href="{{ route('admin.payments.settings.edit') }}" class="menu-link {{ request()->routeIs('admin.payments.settings.edit') ? 'active' : '' }}">
+                    <span class="menu-icon">💳</span>
+                    بيانات تحويل Paypal
+
                 </a>
 
                 <a href="{{ route('banners.index') }}" class="menu-link {{ request()->routeIs('banners.index') ? 'active' : '' }}">
                     <span class="menu-icon">📸</span>
                     البانرات والإعلانات
+                </a>
+
+                <a href="{{ route('admin.contact-messages.index') }}" class="menu-link {{ request()->routeIs('admin.contact-messages.index') ? 'active' : '' }}">
+                    <span class="menu-icon">📧</span>
+                    رسائل الاتصال
+                </a>
+
+                <a href="{{ route('admin.page_contents.index') }}" class="menu-link {{ request()->routeIs('admin.page_contents.index') ? 'active' : '' }}">
+                    <span class="menu-icon">📝</span>
+                    سياسة الخصوصية
                 </a>
 
             </div>

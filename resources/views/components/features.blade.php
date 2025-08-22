@@ -114,7 +114,6 @@
                         <i class="fa-solid fa-crown"></i>
                     </a>
                     @endauth
-
                 </div>
             </div>
 

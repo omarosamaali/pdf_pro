@@ -27,9 +27,11 @@
         </div>
 
         <div id="initial-content">
-            <h1 class="text-[24px] w-full md:text-[42px] font-bold text-[#33333b] my-2">{{ __('messages.merge_pdf') }}</h1>
+            <h1 class="text-[24px] w-full md:text-[42px] font-bold text-[#33333b] my-2">{{ __('messages.compress_pdf') }}</h1>
+
             <p class="max-w-5xl mx-auto text-[16px] md:text-[22px] text-gray-700 mb-4">
-                {{ __('messages.combine_multiple_pdf') }}
+                {{ __('messages.compress_pdf_desc') }}
+
             </p>
 
             <div id="drop-zone" class="rounded-xl p-8 mb-4 transition-all duration-300 cursor-pointer border-2 border-dashed border-gray-300">

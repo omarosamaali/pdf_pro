@@ -17,6 +17,7 @@ class User extends Authenticatable
         'role',
         'daily_operations',
         'daily_reset_date',
+        'last_seen',
         'subscription_id'
     ];
 
@@ -46,6 +47,21 @@ class User extends Authenticatable
         return $this->daily_operations < $limit;
     }
 
+    public function hasActiveSubscription()
+    {
+        return $this->subscription_id !== null && $this->subscription !== null;
+    }
+
+    public function getSubscriptionName()
+    {
+        if (!$this->hasActiveSubscription()) {
+            return null;
+        }
+
+        $locale = app()->getLocale();
+        return $locale === 'ar' ? $this->subscription->name_ar : $this->subscription->name_en;
+    }
+
     public function getDailyOperationsLimit()
     {
         if ($this->subscription_id && $this->subscription) {
@@ -68,5 +84,16 @@ class User extends Authenticatable
         $remaining = $limit - $this->daily_operations;
 
         return max(0, $remaining);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(\App\Models\Notification::class);
+    }
+
+    // Add method to get unread notifications
+    public function unreadNotifications()
+    {
+        return $this->notifications()->whereNull('read_at');
     }
 }

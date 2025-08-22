@@ -11,9 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // أضف SetLocale middleware للـ web group
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
+            \App\Http\Middleware\LastUserActivity::class,
         ]);
 
         $middleware->alias([
@@ -21,6 +21,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'daily_limit' => \App\Http\Middleware\DailyOperationLimit::class,
         ]);
     })
+    ->withProviders([
+        // \App\Providers\PaymentSettingsServiceProvider::class, // احذف هذا السطر
+    ])
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'PDF to Word')
+@section('title', 'PDF to excel')
 
 @section('content')
 
@@ -30,9 +30,11 @@
         </div>
 
         <div id="initial-content">
-            <h1 class="text-[24px] w-full md:text-[42px] font-bold text-[#33333b] my-2">{{ __('messages.pdf_to_word_conversion') }}</h1>
+            <h1 class="text-[24px] w-full md:text-[42px] font-bold text-[#33333b] my-2">{{ __('messages.convert_to_excel') }}</h1>
+
             <p class="max-w-5xl mx-auto text-[16px] md:text-[22px] text-gray-700 mb-4">
-                {{ __('messages.convert_pdf_to_word_high_quality') }}
+                {{ __('messages.convert_to_excel_desc') }}
+
             </p>
 
             <div id="drop-zone" class="rounded-xl p-8 mb-4 transition-all duration-300 cursor-pointer border-2 border-dashed border-gray-300">
@@ -112,7 +114,7 @@
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                     </svg>
-                    {{ __('messages.convert_to_word_button') }}
+                    {{ __('messages.convert_to_excel_button') }}
                 </button>
 
                 <button class="w-full bg-gray-200 text-gray-700 rounded-lg py-2 px-6 font-medium hover:bg-gray-300 transition-colors" onclick="selectAnotherFile()">
@@ -340,7 +342,7 @@
         formData.append('pdfFile', selectedFile);
 
         try {
-            const response = await fetch('/convert-pdf_to_word', {
+            const response = await fetch('/convert-pdf_to_excel', {
                 method: 'POST'
                 , body: formData
                 , headers: {
@@ -393,7 +395,7 @@
             Swal.fire({
                 icon: 'success'
                 , title: 'تم التحويل بنجاح'
-                , text: 'تم تحويل ملفك إلى Word بنجاح! ✅'
+                , text: 'تم تحويل ملفك إلى excel بنجاح! ✅'
                 , confirmButtonColor: '#3085d6'
                 , confirmButtonText: 'حسنًا'
             });

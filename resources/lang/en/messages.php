@@ -49,7 +49,7 @@ return [
     'rotate_pdf_desc' => 'Rotate file pages to adjust orientation.',
     'add_watermark' => 'Add Watermark',
     'add_watermark_desc' => 'Add watermarks to secure or customize your files.',
-
+    'compress_another' => 'Compress Another',
     // Work Your Way Section
     'work_your_way_title' => 'Work Your Way',
     'work_your_way_desc' => 'Transform and edit your PDF files with ease using our advanced tools',
@@ -402,6 +402,7 @@ return [
     'back_to_home' => '🏠 Back to Home',
     'contact_message' => 'Contact Message',
     'contact_reply' => 'Reply to Message',
+    'download' => 'Download',
 
 
 ];

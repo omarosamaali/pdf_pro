@@ -6,7 +6,6 @@
 
 <div class="px-4 py-0 text-center bg-gray-100">
     <div class="mx-auto max-w-7xl py-5">
-        {{-- banner 5 is hidden by default and only shown after file selection --}}
         <div id="banner-5-box" class="mt-6 hidden">
             @php $conversionBanner5 = App\Models\Banner::where('name', 'banner_5')->where('is_active', true)->first(); @endphp
             @if ($conversionBanner5 && $conversionBanner5->file_path)
@@ -31,7 +30,6 @@
 
             <p class="max-w-5xl mx-auto text-[16px] md:text-[22px] text-gray-700 mb-4">
                 {{ __('messages.compress_pdf_desc') }}
-
             </p>
 
             <div id="drop-zone" class="rounded-xl p-8 mb-4 transition-all duration-300 cursor-pointer border-2 border-dashed border-gray-300">
@@ -42,12 +40,12 @@
                 <button class="open--btn bg-black text-white rounded-xl p-3 w-[330px] h-[80px] text-[22px] font-bold hover:bg-gray-800 transition-colors" onclick="openFilePicker()">
                     {{ __('messages.select_pdf_files') }}
                 </button>
-                <p class="text-sm text-gray-500 mt-2">{{ __('messages.supports_pdf_multiple') }}</p>
+                <p class="text-sm text-gray-500 mt-2">{{ __('messages.supports_pdf_single') }}</p>
             </div>
         </div>
 
-        <div id="file-list-container" class="hidden mt-6">
-            {{-- banner 7 shows above the file list --}}
+        <!-- File Card Section -->
+        <div id="file-card" class="hidden mt-6">
             <div id="banner-7-box" class="mt-6 hidden">
                 @php $conversionBanner7 = App\Models\Banner::where('name', 'banner_7')->where('is_active', true)->first(); @endphp
                 @if ($conversionBanner7 && $conversionBanner7->file_path)
@@ -68,20 +66,28 @@
             </div>
 
             <div class="bg-white rounded-lg shadow-lg p-6 max-w-4xl mx-auto border-2 border-gray-200">
-                <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">{{ __('messages.selected_files') }}</h3>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">{{ __('messages.selected_file') }}</h3>
 
-                <div id="file-list" class="flex flex-col gap-2 mb-4" ondragover="event.preventDefault()">
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-4">
+                    <div class="flex items-center">
+                        <svg class="w-10 h-10 text-red-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" />
+                        </svg>
+                        <div>
+                            <p id="selected-file-name" class="font-medium text-gray-900"></p>
+                            <div class="text-sm text-gray-500">
+                                <span id="file-size"></span> • <span id="file-format"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flex justify-center flex-wrap gap-4 mt-6">
-                    <button id="add-more-files-btn" class="bg-gray-200 text-gray-700 rounded-lg py-3 px-6 font-medium hover:bg-gray-300 transition-colors" onclick="openFilePicker()">
-                        {{ __('messages.add_more_files') }}
-                    </button>
-                    <button id="merge-btn" class="bg-yellow-500 text-white rounded-lg py-3 px-6 font-bold hover:bg-yellow-600 transition-colors focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50" onclick="mergeAndDownload()">
+                    <button id="compress-btn" class="bg-blue-500 text-white rounded-lg py-3 px-6 font-bold hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" onclick="uploadAndCompress()">
                         <svg class="w-5 h-5 inline-block mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM4 11a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM4 15a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1z"></path>
+                            <path d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" />
                         </svg>
-                        {{ __('messages.merge_pdf_button') }}
+                        {{ __('messages.compress_pdf') }}
                     </button>
                     <button id="cancel-btn" class="bg-red-500 text-white rounded-lg py-3 px-6 font-bold hover:bg-red-600 transition-colors" onclick="selectAnotherFile()">
                         {{ __('messages.cancel') }}
@@ -89,7 +95,6 @@
                 </div>
             </div>
 
-            {{-- banner 6 shows below the file list --}}
             <div id="banner-6-box" class="mt-6 hidden">
                 @php $conversionBanner6 = App\Models\Banner::where('name', 'banner_6')->where('is_active', true)->first(); @endphp
                 @if ($conversionBanner6 && $conversionBanner6->file_path)
@@ -110,9 +115,10 @@
             </div>
         </div>
 
+        <!-- Progress Section -->
         <div id="progress-section" class="hidden mt-6">
             <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto">
-                <h4 class="text-lg font-semibold text-gray-800 mb-4 text-center">{{ __('messages.merging_files') }}</h4>
+                <h4 class="text-lg font-semibold text-gray-800 mb-4 text-center">{{ __('messages.compressing_file') }}</h4>
                 <div class="w-full bg-gray-200 rounded-full h-2">
                     <div id="progress-bar" class="bg-green-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
                 </div>
@@ -120,7 +126,83 @@
             </div>
         </div>
 
-        {{-- banner 4 is hidden on initial load and shown only on file selection --}}
+        <!-- Success Section -->
+        <div id="success-section" class="hidden mt-6">
+            <div id="banner-6-box-success" class="mt-6 hidden">
+                @php $conversionBanner6 = App\Models\Banner::where('name', 'banner_6')->where('is_active', true)->first(); @endphp
+                @if ($conversionBanner6 && $conversionBanner6->file_path)
+                <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto border-2 border-gray-200">
+                    @if ($conversionBanner6->isVideo())
+                    <video style="width: 100%; max-height: 300px; object-fit: cover;" class="width-height" controls>
+                        <source src="{{ $conversionBanner6->file_url }}" type="video/{{ $conversionBanner6->file_type }}">
+                    </video>
+                    @else
+                    <a href="{{ $conversionBanner6->url }}" target="_blank">
+                        <img src="{{ $conversionBanner6->file_url }}" alt="Banner 6" class="width-height" style="width: 100%; max-height: 300px; object-fit: cover;">
+                    </a>
+                    @endif
+                </div>
+                @else
+                <p class="text-red-600">{{ __('messages.no_active_banner_found_6') }}</p>
+                @endif
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto border-2 border-gray-200">
+                <div class="text-center">
+                    <svg class="mx-auto h-16 w-16 text-green-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">{{ __('messages.compression_complete') }}</h3>
+
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-600">{{ __('messages.original_size') }}:</span>
+                            <span id="original-size" class="font-medium"></span>
+                        </div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-gray-600">{{ __('messages.compressed_size') }}:</span>
+                            <span id="compressed-size" class="font-medium text-green-600"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">{{ __('messages.reduction') }}:</span>
+                            <span id="reduction-percentage" class="font-medium text-green-600"></span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-center gap-4">
+                        <button class="bg-green-500 text-white rounded-lg py-3 px-6 font-bold hover:bg-green-600 transition-colors" onclick="downloadFile()">
+                            <svg class="w-5 h-5 inline-block mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" />
+                            </svg>
+                            {{ __('messages.download') }}
+                        </button>
+                        <button class="bg-gray-500 text-white rounded-lg py-3 px-6 font-bold hover:bg-gray-600 transition-colors" onclick="selectAnotherFile()">
+                            {{ __('messages.compress_another') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="banner-7-box-success" class="mt-6 hidden">
+                @php $conversionBanner7 = App\Models\Banner::where('name', 'banner_7')->where('is_active', true)->first(); @endphp
+                @if ($conversionBanner7 && $conversionBanner7->file_path)
+                <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto border-2 border-gray-200">
+                    @if ($conversionBanner7->isVideo())
+                    <video style="width: 100%; max-height: 300px; object-fit: cover;" class="width-height" controls>
+                        <source src="{{ $conversionBanner7->file_url }}" type="video/{{ $conversionBanner7->file_type }}">
+                    </video>
+                    @else
+                    <a href="{{ $conversionBanner7->url }}" target="_blank">
+                        <img src="{{ $conversionBanner7->file_url }}" alt="Banner 7" class="width-height" style="width: 100%; max-height: 300px; object-fit: cover;">
+                    </a>
+                    @endif
+                </div>
+                @else
+                <p class="text-red-600">{{ __('messages.no_active_banner_found_7') }}</p>
+                @endif
+            </div>
+        </div>
+
         <div id="banner-4-box" class="hidden mt-6">
             @php $conversionBanner4 = App\Models\Banner::where('name', 'banner_4')->where('is_active', true)->first(); @endphp
             @if ($conversionBanner4 && $conversionBanner4->file_path)
@@ -140,7 +222,7 @@
             @endif
         </div>
 
-        <input type="file" id="file-input" accept="application/pdf" style="display: none;" onchange="handleFileSelect(event)" multiple>
+        <input type="file" id="file-input" accept="application/pdf" style="display: none;" onchange="handleFileSelect(event)">
     </div>
 </div>
 
@@ -406,5 +488,4 @@
     }
 
 </style>
-
 @endsection
